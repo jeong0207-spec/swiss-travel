@@ -1,755 +1,607 @@
-
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>스위스 여행 루트 추천기 최종본</title>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>알프스 여행 루트 추천기</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-  :root{
-    --bg:#f6f8fc; --card:#fff; --line:#e5e7eb; --text:#111827; --muted:#6b7280;
-    --accent:#111827; --soft:#eef2ff; --warn:#fff1f2;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(180deg,#f8fbff 0%,#f5f7fb 100%);color:var(--text);line-height:1.65}
-  .wrap{max-width:1280px;margin:0 auto;padding:24px}
-  .hero,.card{background:var(--card);border:1px solid var(--line);border-radius:24px;box-shadow:0 10px 30px rgba(15,23,42,.04)}
-  .hero{padding:28px;margin-bottom:20px;background:linear-gradient(135deg,#fff 0%,#eef2ff 100%)}
-  .card{padding:20px}
-  .eyebrow{display:inline-flex;padding:8px 14px;border:1px solid var(--line);border-radius:999px;background:#fff;font-size:13px;color:#334155;margin-bottom:12px}
-  h1{font-size:34px;line-height:1.2;margin:0 0 10px}
-  h2{font-size:22px;margin:0 0 14px}
-  h3{font-size:18px;margin:0 0 10px}
-  p{margin:0 0 12px}
-  .muted{color:var(--muted)}
-  .mode-select{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
-  .mode-box{display:inline-flex;padding:14px 18px;border:2px solid #ddd;border-radius:12px;background:#fff;cursor:pointer;font-weight:700}
-  .mode-box.active{border-color:#2b6cff;background:#eef3ff}
-  .grid{display:grid;grid-template-columns:430px 1fr;gap:20px;align-items:start}
-  .section{margin-bottom:18px}
-  .label{font-size:14px;font-weight:700;margin-bottom:8px;display:block}
-  select{width:100%;border:1px solid var(--line);border-radius:14px;padding:12px 14px;font-size:15px;background:#fff;color:var(--text)}
-  .btn{border:none;border-radius:14px;padding:12px 16px;font-weight:700;cursor:pointer;background:#111827;color:#fff}
-  .choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .choice{border:1px solid var(--line);border-radius:16px;background:#fff;padding:12px 14px;cursor:pointer}
-  .choice.active{background:#111827;color:#fff;border-color:#111827}
-  .choice small{display:block;color:var(--muted);margin-top:4px}
-  .choice.active small{color:#dbe3f1}
-  .region-box{border:1px solid var(--line);border-radius:18px;background:#fafbfc;padding:14px;margin-bottom:12px}
-  .region-head{display:flex;align-items:flex-start;gap:10px}
-  .sub-grid{display:grid;gap:10px;margin-top:10px;padding-left:28px}
-  .sub-theme{margin-top:8px;padding-left:18px;border-left:2px solid #e2e8f0}
-  .check{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:14px;background:#fff;padding:10px 12px}
-  .check input{margin-top:2px}
-  .check small{display:block;color:var(--muted);margin-top:4px}
-  .result .summary{background:#111827;color:#fff;padding:14px 16px;border-radius:12px;margin-bottom:14px}
-  .notice{background:var(--warn);padding:12px;border-left:5px solid #dc2626;border-radius:10px;margin-bottom:14px}
-  .route-line{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
-  .pill{padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:#fff;font-weight:700}
-  .arrow{color:#6b7280;font-weight:700}
-  .map-wrap{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px;overflow:auto}
-  .map-wrap svg{display:block;width:100%;min-width:760px;height:320px}
-  .caption{font-size:13px;color:var(--muted);margin-top:8px}
-  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
-  .item,.day,.link-group{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px}
-  .list,.day-list,.blog-links{display:grid;gap:10px}
-  .badge{padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:#fff;font-size:12px}
-  .topline{display:flex;justify-content:space-between;gap:10px;align-items:center}
-  .linkchips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-  .link-chip{display:inline-flex;align-items:center;padding:8px 12px;border:1px solid var(--line);border-radius:999px;text-decoration:none;color:#111827;background:#fff}
-  .link-chip:hover{background:#f9fafb}
-  #manualSection,#recommendSection{display:none}
-  .card-title-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
-  @media (max-width: 1024px){
-    .grid,.two-col,.choice-grid{grid-template-columns:1fr}
-    .wrap{padding:16px}
-    h1{font-size:28px}
-  }
-</style>
-</head>
-<body>
+:root{--bg:#f3f6fa;--card:#fff;--ink:#0f1f33;--mut:#64748b;--line:#e2e8f0;--acc:#1f6feb;--acc2:#0ea5a4}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+.hero{background:linear-gradient(135deg,#0f2a4a,#1f6feb 60%,#0ea5a4);color:#fff;padding:36px 20px 70px}
+.hero h1{margin:0 0 6px;font-size:30px}.hero p{margin:0;opacity:.9}.wrap{max-width:1180px;margin:-48px auto 40px;padding:0 16px}
+.tabs{display:flex;gap:8px;margin-bottom:12px}.tab{flex:1;padding:14px;border:0;border-radius:14px;background:#fff;font-weight:700;font-size:15px;cursor:pointer;box-shadow:0 4px 14px #0001}
+.tab.on{background:var(--ink);color:#fff}
+.card{background:var(--card);border-radius:18px;padding:18px;box-shadow:0 6px 24px #0f1f3312;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:380px 1fr;gap:16px;align-items:start}
+label.l{display:block;font-size:13px;font-weight:700;color:var(--mut);margin:12px 0 6px}
+select{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;font-size:15px;background:#fff}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.chip{padding:7px 12px;border:1px solid var(--line);border-radius:99px;background:#fff;cursor:pointer;font-size:14px}
+.chip.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.go{width:100%;margin-top:16px;padding:14px;border:0;border-radius:12px;background:linear-gradient(90deg,var(--acc),var(--acc2));color:#fff;font-size:16px;font-weight:800;cursor:pointer}
+#map{height:380px;border-radius:14px}
+.route{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0 14px}.pill{background:#eef4ff;padding:5px 10px;border-radius:99px;font-weight:700;font-size:14px}
+.day{display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--line)}.dn{flex:0 0 52px;height:52px;border-radius:12px;background:var(--ink);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:13px}
+.day h4{margin:0 0 2px;font-size:15px}.day p{margin:0;font-size:14px;color:#334155}.tag{font-size:11px;padding:2px 8px;border-radius:99px;background:#f1f5f9;margin-left:6px;color:var(--mut)}
+.hub{border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:10px}.hub h4{margin:0}.dim{opacity:.25}.mut{color:var(--mut);font-size:13px}
+.hk{font-size:13px;margin:4px 0 0;padding-left:18px}.warn{background:#fff7ed;border-left:4px solid #f97316;padding:10px;border-radius:8px;margin-bottom:10px}
+.pick{border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin:6px 0;display:flex;gap:8px;align-items:flex-start;font-size:14px}.pick.sat{margin-left:22px;background:#f8fafc}
+.pick select{width:auto;padding:4px;font-size:12px}.cty{font-weight:800;margin-top:14px}
+.note{font-size:12px;color:var(--mut);margin-top:10px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}.hero h1{font-size:24px}#map{height:300px}}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+details.adv{margin-top:14px;border:1px dashed var(--line);border-radius:12px;padding:8px 12px}details.adv summary{cursor:pointer;font-weight:700;color:var(--mut);font-size:14px}
+details.dd{border-top:1px solid var(--line);padding:10px 0}details.dd summary{list-style:none;cursor:pointer;display:flex;gap:10px;align-items:center}details.dd summary::-webkit-details-marker{display:none}
+details.dd .dn{flex:0 0 44px;height:44px;font-size:12px}details.dd .body{padding:6px 0 0 54px;font-size:14px;color:#334155}
+.badge{display:inline-block;font-size:11px;background:#fde68a;color:#7c2d12;border-radius:99px;padding:1px 8px;margin-left:4px;font-weight:700}
+.tip{font-size:13px;margin:4px 0}.tip a{color:var(--acc)}
+.basegrp{border:1px solid var(--line);border-radius:12px;margin:6px 0}.basegrp>.pick{border:0;margin:0}.basegrp details{padding:0 10px 8px}.basegrp summary{font-size:12px;color:var(--acc);cursor:pointer}
+.go.alt{background:#fff;color:var(--ink);border:2px solid var(--acc2);font-size:14px;margin-top:8px}.badge.hike{background:#dcfce7;color:#166534}
+.cityrow{display:grid;grid-template-columns:120px 1fr;gap:6px}.q,.custom input{padding:9px;border:1px solid var(--line);border-radius:10px;font-size:14px;width:100%}
+.custom{display:flex;gap:6px;margin-top:6px}.custom button{border:0;border-radius:10px;padding:0 12px;background:#e2e8f0;cursor:pointer;font-weight:700}
+.same{font-weight:400;font-size:12px;margin-left:8px;color:var(--ink)}.geo{font-size:12px;margin-top:4px}
+.sugbtn{border:1px solid #f97316;background:#fff;border-radius:99px;padding:3px 10px;margin:4px 2px 0;cursor:pointer;font-size:12px}
+.hi{background:#fef9c3;border-radius:8px;padding:6px 8px;margin:4px 0}
+.shoptoggle{display:flex;gap:8px;align-items:center;margin-top:12px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;font-weight:700;font-size:14px;cursor:pointer}.tipsbox{background:#f0f9ff;border-radius:8px;padding:6px 8px;margin:4px 0;font-size:13px}
+.chip.dis{opacity:.4;text-decoration:line-through}
+</style></head><body>
+<div class="hero"><h1>🏔️ 알프스 여행 루트 추천기</h1><p>스위스 · 프랑스 · 이탈리아 · 오스트리아 · 독일 바이에른 — 국경을 넘어 알프스 전체로 루트를 짜보세요.</p></div>
 <div class="wrap">
-  <div class="hero">
-    <div class="eyebrow">최종본 · 추천 일정 + 직접 선택 통합</div>
-    <h1>스위스 여행 루트 추천기</h1>
-    <p>아이디어가 없을 때는 <strong>추천 일정</strong>으로 시작하고, 이미 가고 싶은 곳이 정해져 있다면 <strong>직접 선택</strong>으로 루트를 설계할 수 있게 만든 통합 버전입니다.</p>
-    <div class="mode-select">
-      <div class="mode-box active" id="modeRecommendBtn" onclick="setMode('recommend')">추천 일정으로 시작</div>
-      <div class="mode-box" id="modeManualBtn" onclick="setMode('manual')">내가 직접 선택</div>
-    </div>
-  </div>
-
-  <div id="recommendSection">
-    <div class="grid">
-      <div class="card">
-        <h2>추천 일정 설정</h2>
-        <div class="section">
-          <label class="label">입국 도시</label>
-          <select id="recInCity"><option>취리히</option><option>제네바</option></select>
-        </div>
-        <div class="section">
-          <label class="label">출국 도시</label>
-          <select id="recOutCity"><option>취리히</option><option selected>제네바</option></select>
-        </div>
-        <div class="section">
-          <label class="label">여행 기간</label>
-          <select id="recDays"><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option selected>10</option></select>
-        </div>
-        <div class="section">
-          <label class="label">여행 스타일</label>
-          <div class="choice-grid" id="recStyleGrid"></div>
-        </div>
-        <button class="btn" onclick="buildRecommend()">추천 루트 만들기</button>
-      </div>
-      <div class="result" id="recommendResult"></div>
-    </div>
-  </div>
-
-  <div id="manualSection">
-    <div class="grid">
-      <div class="card">
-        <h2>직접 여행 루트 설계</h2>
-        <div class="section">
-          <label class="label">입국 도시</label>
-          <select id="manInCity"><option>취리히</option><option>제네바</option></select>
-        </div>
-        <div class="section">
-          <label class="label">출국 도시</label>
-          <select id="manOutCity"><option>취리히</option><option>제네바</option></select>
-        </div>
-        <div class="section">
-          <label class="label">여행 기간</label>
-          <select id="manDays"><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option selected>10</option></select>
-        </div>
-        <div class="section">
-          <label class="label">여행 스타일</label>
-          <div class="choice-grid" id="manStyleGrid"></div>
-        </div>
-        <div class="section">
-          <label class="label">핵심 여행 지역 & 명소 선택</label>
-          <div class="region-box" id="region-lucerne"></div>
-          <div class="region-box" id="region-interlaken"></div>
-          <div class="region-box" id="region-zermatt"></div>
-          <div class="region-box" id="region-lakegeneva"></div>
-        </div>
-        <button class="btn" onclick="buildManual()">직접 선택 루트 만들기</button>
-      </div>
-      <div class="result" id="manualResult"></div>
-    </div>
-  </div>
+<div class="tabs"><button class="tab on" data-m="rec">✨ 추천 일정으로 시작</button><button class="tab" data-m="man">🧭 내가 직접 선택</button></div>
+<div class="grid">
+<div class="card" id="form">
+ <label class="l">여행 기간</label><select id="days"></select>
+ <label class="l">여행 시작 도시</label>
+ <div class="cityrow"><input id="q_entry" class="q" placeholder="🔍 도시 검색"><select id="entry"></select></div>
+ <div class="custom"><input id="c_entry" placeholder="목록에 없으면 직접 입력 (예: Strasbourg)"><button type=button data-for="entry">찾기</button></div>
+ <label class="l">여행 끝 도시 <label class="same"><input type=checkbox id="same" checked> 시작 도시로 돌아오기</label></label>
+ <div id="endBox" style="display:none"><div class="cityrow"><input id="q_exit" class="q" placeholder="🔍 도시 검색"><select id="exit"></select></div>
+ <div class="custom"><input id="c_exit" placeholder="목록에 없으면 직접 입력"><button type=button data-for="exit">찾기</button></div></div>
+ <div id="recOnly">
+ <label class="l">도시 vs 자연</label><div class="chips" id="mix"></div>
+ <label class="l">여행 시기 (월)</label><select id="month"></select>
+ <label class="l">여행 스타일</label><div class="chips" id="style"></div><div id="trekNote" class="mut" style="display:none">❄️ 이 시기엔 고지대 트레일이 눈에 덮여 트레킹 스타일을 쓸 수 없어요 (보통 6월 중순~10월 초·중순 가능).</div>
+ <label class="shoptoggle"><input type=checkbox id="shop"> 🛍️ 쇼핑하며 쉬는 하루 넣기</label>
+ <details class="adv"><summary>⚙️ 더 자세히 (나라·예산·이동수단)</summary>
+ <label class="l">포함할 나라</label><div class="chips" id="countries"></div>
+ <label class="l">예산</label><div class="chips" id="budget"></div>
+ <label class="l">여행 속도</label><div class="chips" id="pace"></div>
+ <label class="l">이동 수단</label><div class="chips" id="mode"></div>
+ <label class="l">돌로미티 진입 루트 (이탈리아 소도시 경유)</label><select id="approach"><option value="">자동</option></select>
+ </details>
+ </div>
+ <div id="manOnly" style="display:none"><label class="l">가고 싶은 거점 선택 <span class="mut">(▸ 를 누르면 근교 당일치기·1박2일)</span></label><div id="picks"></div></div>
+ <button class="go" id="go">루트 만들기</button>
+ <button class="go alt" id="preset">🚗 취리히 왕복 오스트리아·독일 편안한 루프</button>
+ <div class="note">이동 시간은 거리 기반 추정치예요. 실제 시간표·요금은 SBB·Trenitalia·ÖBB 등에서 확인하세요. ₩~₩₩₩₩는 상대적 물가 수준입니다.</div>
 </div>
-
+<div><div class="card"><div id="map"></div></div><div class="card" id="out"><p class="mut">왼쪽에서 조건을 고르고 <b>루트 만들기</b>를 눌러보세요.</p></div></div>
+</div></div>
 <script>
-const styleOptions = [
-  {key:"풍경", label:"풍경 중심 여행", desc:"호수, 전망대, 엽서 같은 풍경 위주"},
-  {key:"하이킹", label:"하이킹 / 자연 여행", desc:"트레킹과 산악 풍경 중심"},
-  {key:"도시", label:"도시 + 문화 여행", desc:"역사 도시와 문화 포인트 위주"},
-  {key:"균형", label:"균형 여행", desc:"처음 스위스를 가는 여행자에게 무난한 구성"}
+// type: hub = 숙박 거점, sat = 위성(거점에서 당일/1박2일). parent = 거점 id
+// 여행 시작/끝 도시 (관문 도시, 도심 좌표). ap=국제공항 있음
+const GATES={zurich:["취리히","CH",47.3769,8.5417,1],geneva:["제네바","CH",46.2044,6.1432,1],basel:["바젤","CH",47.5596,7.5886,1],bern:["베른","CH",46.948,7.4474,0],
+milan:["밀라노","IT",45.4642,9.19,1],venice:["베네치아","IT",45.4408,12.3155,1],florence:["피렌체","IT",43.7696,11.2558,1],turin:["토리노","IT",45.0703,7.6869,1],verona:["베로나","IT",45.4384,10.9916,1],bologna:["볼로냐","IT",44.4949,11.3426,1],
+munich:["뮌헨","DE",48.1351,11.582,1],stuttgart:["슈투트가르트","DE",48.7758,9.1829,1],frankfurt:["프랑크푸르트","DE",50.1109,8.6821,1],
+vienna:["빈","AT",48.2082,16.3738,1],innsbruck:["인스브루크","AT",47.2692,11.4041,1],salzburg:["잘츠부르크","AT",47.8095,13.055,1],
+lyon:["리옹","FR",45.764,4.8357,1],paris:["파리","FR",48.8566,2.3522,1],nice:["니스","FR",43.7102,7.262,1],
+ljubljana:["류블랴나","SI",46.0569,14.5058,1],prague:["프라하","CZ",50.0755,14.4378,1]};
+const COUNTRIES_ALL={SI:"🇸🇮 슬로베니아",CZ:"🇨🇿 체코"};
+const COUNTRIES={CH:"🇨🇭 스위스",FR:"🇫🇷 프랑스",IT:"🇮🇹 이탈리아",AT:"🇦🇹 오스트리아",DE:"🇩🇪 독일"};
+// s: 계절 su(여름 6-9) sh(봄가을 5,10) wi(겨울 12-3) / st: scenic, hike, city, relax
+const D=[
+{id:"siena",n:"시에나",c:"IT",r:"토스카나",lat:43.3188,lng:11.3308,t:"sat",parent:"florence",mode:"day",nt:0,s:["su","sh","wi"],st:["city"],d:"부채꼴 캄포 광장과 대성당의 중세 도시. 피렌체에서 버스·기차 약 1~1.5시간.",h:["캄포 광장·만자의 탑","시에나 대성당"],hk:[]},
+{id:"sangimignano",n:"산지미냐노",c:"IT",r:"토스카나",lat:43.4677,lng:11.0436,t:"sat",parent:"florence",mode:"day",nt:0,s:["su","sh","wi"],st:["city","scenic"],d:"중세 탑들이 남은 언덕 마을 (유네스코). 시에나와 묶어 하루 코스로 많이 감.",h:["탑의 마을 구시가","젤라토"],hk:[]},
+{id:"lucca",n:"루카",c:"IT",r:"토스카나",lat:43.8429,lng:10.5027,t:"sat",parent:"florence",mode:"day",nt:0,s:["su","sh","wi"],st:["city","relax"],d:"성벽 위를 걷거나 자전거로 한 바퀴 도는 평지 소도시. 피렌체에서 기차 약 1~1.5시간.",h:["성벽 산책로","구이니지 탑"],hk:[]},
+{id:"colmar",n:"콜마르 (알자스)",c:"FR",r:"알자스",lat:48.0794,lng:7.3585,t:"hub",nt:2,s:["wi","su","sh"],st:["city","relax","scenic"],d:"반목조 컬러 하우스와 운하(쁘띠 베니스)의 동화 마을. 알자스 와인가도의 중심. 겨울엔 크리스마스 마켓으로 유명.",h:["쁘띠 베니스 운하 산책","구시가 메종 피스테르·운터린덴 미술관","겨울: 크리스마스 마켓 (2026년 11/23~12/29)"],hk:[["와인가도 마을 잇기 (리크위르↔리보빌레 포도밭 길)","쉬움","포도밭 사이 완만한 길, 눈 온 날엔 미끄럼 주의"]]},
+{id:"strasbourg",n:"스트라스부르",c:"FR",r:"알자스",lat:48.5734,lng:7.7521,t:"sat",parent:"colmar",mode:"day",nt:0,s:["wi","su","sh"],st:["city"],d:"대성당과 쁘띠 프랑스. '크리스마스의 수도' 마켓(2026년 11/27~12/24). 콜마르에서 기차 약 30분.",h:["노트르담 대성당","쁘띠 프랑스","겨울: 크리스마스 마켓"],hk:[]},
+{id:"winevillages",n:"와인가도 마을 (리크위르·리보빌레·에기스하임·카이저스베르크)",c:"FR",r:"알자스",lat:48.1667,lng:7.2981,t:"sat",parent:"colmar",mode:"day",nt:0,s:["wi","su","sh"],st:["scenic","relax"],d:"알자스 와인가도의 작은 중세 마을들. 차로 잇기 쉽고, 콜마르에서 버스도 있음.",h:["리크위르 성벽 마을","에기스하임 원형 골목","리보빌레","겨울: 마을마다 작은 크리스마스 마켓"],hk:[]},
+{id:"freiburg",n:"프라이부르크 (흑림)",c:"DE",r:"흑림",lat:47.999,lng:7.8421,t:"hub",nt:1,s:["wi","su","sh"],st:["city","relax"],d:"흑림 입구의 대학 도시. 바젤과 콜마르 사이, 독일 쪽으로 넘어가는 연결 거점.",h:["프라이부르크 대성당과 뮌스터 광장","베힐레(구시가 작은 수로)","슐로스베르크 전망"],hk:[]},
+{id:"titisee",n:"티티제 (흑림 호수)",c:"DE",r:"흑림",lat:47.9034,lng:8.1557,t:"sat",parent:"freiburg",mode:"day",nt:0,s:["wi","su","sh"],st:["scenic","relax"],d:"흑림의 호수 마을. 프라이부르크에서 기차 약 40분, 뻐꾸기시계 가게들.",h:["티티제 호숫가 산책","흑림 케이크"],hk:[]},
+{id:"interlaken",n:"인터라켄 (융프라우)",c:"CH",r:"베르너 오버란트",lat:46.6863,lng:7.8632,t:"hub",nt:3,s:["su","sh","wi"],st:["scenic","hike","relax"],d:"한국 여행자의 스위스 1순위 거점. 융프라우요흐·그린델발트·라우터브루넨을 오가기 좋음.",h:["융프라우요흐","그린델발트 피르스트","라우터브루넨 계곡","툰·브리엔츠 호수"],hk:[["멘리헨–클라이네 샤이덱 파노라마 트레일","쉬움","약 1.5시간, 아이거·묀히·융프라우 조망"],["피르스트–바흐알프호수","쉬움","편도 약 1시간, 호수에 비친 설산"]]},
+{id:"zermatt",n:"체르마트",c:"CH",r:"발레",lat:46.0207,lng:7.7491,t:"sat",parent:"interlaken",mode:"both",ow:2.2,nt:2,s:["su","sh","wi"],st:["scenic","hike"],d:"마터호른 마을. 한국 여행자는 보통 인터라켄에서 당일 또는 1박 2일로 다녀옴 (편도 기차 약 2시간~2시간 반, 추정). 긴 일정이면 독립 거점.",h:["고르너그라트 전망 열차","마터호른 글래시어 파라다이스","수네가 리펠제"],hk:[["5개 호수길 (5-Seenweg)","보통","블라우헤르트 출발 약 10km·2.5~3시간, 마터호른 반영"]]},
+{id:"lauterbrunnen",n:"라우터브루넨·뮈렌",c:"CH",r:"베르너 오버란트",lat:46.5935,lng:7.9091,t:"sat",parent:"interlaken",mode:"day",nt:1,s:["su","sh"],st:["scenic","hike","relax"],d:"72개 폭포의 U자 계곡과 절벽 위 차 없는 마을 뮈렌.",h:["슈타우바흐 폭포","트뤼멜바흐 폭포","쉴트호른"],hk:[["뮈렌–김멜발트 산책","쉬움","약 1시간 내외"]]},
+{id:"lucerne",n:"루체른",c:"CH",r:"중부 스위스",lat:47.0502,lng:8.3093,t:"hub",nt:2,s:["su","sh","wi"],st:["city","scenic","relax"],d:"카펠교와 호수의 도시. 리기·필라투스 당일치기 거점.",h:["카펠교","리기산","필라투스산","루체른 호수 유람선"],hk:[["리기 쿨름–칼트바트 능선길","쉬움","약 1시간"]]},
+{id:"zurich",n:"취리히",c:"CH",r:"취리히",lat:47.3769,lng:8.5417,t:"hub",nt:1,s:["su","sh","wi"],st:["city"],d:"스위스 최대 도시이자 관문. 첫날·마지막 날 숙박에 적합.",h:["구시가 니더도르프","취리히 호수","그로스뮌스터"],hk:[]},
+{id:"montreux",n:"몽트뢰 (레만호)",c:"CH",r:"보",lat:46.4312,lng:6.9107,t:"hub",nt:2,s:["su","sh"],st:["relax","scenic","city"],d:"레만호의 휴양 도시. 시옹성과 라보 포도밭.",h:["시옹성","라보 포도밭 (유네스코)","로잔"],hk:[["라보 포도밭 산책","쉬움","2~3시간, 셰브르–뤼트리 구간"]]},
+{id:"stmoritz",n:"생모리츠 (엥가딘)",c:"CH",r:"그라우뷘덴",lat:46.4908,lng:9.8355,t:"hub",nt:2,s:["su","wi","sh"],st:["scenic","relax"],d:"베르니나 특급의 출발점. 고산 호수와 고급 휴양지.",h:["베르니나 특급 (티라노행)","디아볼레차","무오타스 무랄"],hk:[["무오타스 무랄–알프 랑구아르드","보통","약 2시간"]]},
+{id:"lugano",n:"루가노",c:"CH",r:"티치노",lat:46.0037,lng:8.9511,t:"hub",nt:1,s:["su","sh"],st:["relax","city"],d:"이탈리아어권 스위스의 호숫가 도시. 코모 호수와 가까움.",h:["몬테 브레","간드리아 마을","루가노 호수"],hk:[["간드리아 올리브길","쉬움","약 1시간"]]},
+{id:"bern",n:"베른",c:"CH",r:"베른",lat:46.948,lng:7.4474,t:"sat",parent:"interlaken",mode:"day",nt:1,s:["su","sh","wi"],st:["city"],d:"유네스코 구시가지를 가진 스위스 수도.",h:["치트글로게","장미공원","아레강"],hk:[]},
+{id:"chamonix",n:"샤모니 (몽블랑)",c:"FR",r:"오트사부아",lat:45.9237,lng:6.8694,t:"hub",nt:3,s:["su","sh","wi"],st:["hike","scenic"],d:"몽블랑 아래 알피니즘의 고향. 제네바 공항에서 차로 약 1시간 (추정).",h:["에귀디미디 (3,842m)","몽탕베르 메르드글라스","브레방","락블랑"],hk:[["⭐ 락블랑 (Lac Blanc, 2,352m)","보통~힘듦","라 플레제르 케이블카 하차 후 오르막 약 1.5~2시간, 호수에 비친 몽블랑 산군"],["⭐ 그랑 발콩 노르 (플랑 드 레귀유 → 몽탕베르)","보통","에귀디미디 하산 중 중간역 플랑 드 레귀유(2,317m)에서 하차, 약 2~3시간 걸어 메르드글라스·몽탕베르 열차로 하산"],["락 데 쉐즈리","보통","플레제르 쪽, 락블랑 가는 길의 작은 호수들"],["르 투르 → 콜 드 발므","쉬움","케이블카 하차 후 짧게 걸으면 프랑스–스위스 국경석"]]},
+{id:"annecy",n:"안시",c:"FR",r:"오트사부아",lat:45.8992,lng:6.1294,t:"hub",nt:2,s:["su","sh"],st:["relax","city","scenic"],d:"'알프스의 베네치아'. 맑은 호수와 운하 구시가.",h:["팔레 드 릴","안시 호수 자전거길","탈루아르"],hk:[["몽 베롱","보통","호수 전망 산"]]},
+{id:"aosta",n:"아오스타",c:"IT",r:"발레다오스타",lat:45.7372,lng:7.3201,t:"hub",nt:1,s:["su","sh"],st:["city","scenic"],d:"로마 유적이 남은 산악 도시. 몽블랑 터널 너머 이탈리아.",h:["로마 극장","쿠르마예르 스카이웨이","그란 파라디소 국립공원"],hk:[]},
+{id:"courmayeur",n:"쿠르마예르",c:"IT",r:"발레다오스타",lat:45.7969,lng:6.9689,t:"sat",parent:"chamonix",mode:"day",nt:1,s:["su","wi"],st:["scenic"],d:"몽블랑 이탈리아 쪽. 스카이웨이 몽블랑 회전 케이블카.",h:["스카이웨이 몽블랑","발 페레"],hk:[]},
+{id:"como",n:"코모 호수 (바렌나·벨라지오)",c:"IT",r:"롬바르디아",lat:45.9855,lng:9.2588,t:"hub",nt:2,s:["su","sh"],st:["relax","scenic"],d:"우아한 빌라와 호숫가 마을. 밀라노에서 기차로 1시간 내외 (추정).",h:["벨라지오","빌라 델 발비아넬로","바렌나 산책로"],hk:[["벨라지오 정원 산책","쉬움",""]]},
+{id:"milan",n:"밀라노",c:"IT",r:"롬바르디아",lat:45.4642,lng:9.19,t:"hub",nt:1,s:["su","sh","wi"],st:["city"],d:"이탈리아 북부 관문. 두오모와 최후의 만찬.",h:["밀라노 두오모","갤러리아","최후의 만찬"],hk:[]},
+{id:"ortisei",n:"오르티세이 (발 가르데나)",c:"IT",r:"돌로미티 서부",lat:46.5747,lng:11.6719,t:"hub",nt:3,s:["su","sh","wi"],st:["hike","scenic"],d:"돌로미티 서부 거점. 세체다와 알페 디 시우시.",h:["세체다","알페 디 시우시","셀라 고개"],hk:[["세체다 능선","쉬움~보통","케이블카 하차 후 능선 산책, 사진 명소"],["알페 디 시우시 고원 산책","쉬움","유럽 최대 고산 초원"]]},
+{id:"cortina",n:"코르티나 담페초",c:"IT",r:"돌로미티 동부",lat:46.5405,lng:12.1357,t:"hub",nt:2,s:["su","wi","sh"],st:["hike","scenic"],d:"돌로미티 동부 거점. 트레 치메와 브라이에스 호수 가까움.",h:["트레 치메 디 라바레도","브라이에스 호수","친퀘 토리"],hk:[["⭐ 트레 치메 순환 트레일","보통","아우론초 산장 출발 약 10km·3~4시간"],["친퀘 토리","쉬움","1차 대전 야외 박물관과 바위탑"]]},
+{id:"braies",n:"브라이에스 호수",c:"IT",r:"돌로미티 동부",lat:46.6945,lng:12.0852,t:"sat",parent:"cortina",mode:"day",nt:0,s:["su","sh"],st:["scenic","relax"],d:"에메랄드빛 호수. 여름 성수기엔 차량 진입 예약제가 있으니 확인 필요.",h:["호수 한 바퀴 (약 1시간)","나룻배"],hk:[["호수 일주","쉬움","약 3.5km"]]},
+{id:"bolzano",n:"볼차노",c:"IT",r:"남티롤",lat:46.4983,lng:11.3548,t:"hub",nt:1,s:["su","sh","wi"],st:["city"],d:"독일·이탈리아 문화가 섞인 남티롤 중심. 돌로미티 관문.",h:["외치 아이스맨 박물관","레논 고원","크리스마스 마켓"],hk:[]},
+{id:"venice",n:"베네치아",c:"IT",r:"베네토",lat:45.4408,lng:12.3155,t:"hub",nt:1,s:["su","sh","wi"],st:["city"],d:"알프스 여행의 이탈리아 동쪽 출입구로 활용 가능.",h:["산마르코 광장","리알토 다리"],hk:[]},
+{id:"florence",n:"피렌체",c:"IT",r:"토스카나",lat:43.7696,lng:11.2558,t:"town",nt:2,s:["su","sh","wi"],st:["city"],d:"르네상스의 도시. 돌로미티를 남쪽에서 진입하는 출발점.",h:["두오모","우피치 미술관","미켈란젤로 광장"],hk:[]},
+{id:"bologna",n:"볼로냐",c:"IT",r:"에밀리아로마냐",lat:44.4949,lng:11.3426,t:"town",nt:1,s:["su","sh","wi"],st:["city"],d:"미식의 도시. 피렌체에서 고속열차로 짧게 이동 가능.",h:["두 개의 탑","마조레 광장","포르티코 회랑"],hk:[]},
+{id:"verona",n:"베로나",c:"IT",r:"베네토",lat:45.4384,lng:10.9916,t:"town",nt:1,s:["su","sh","wi"],st:["city"],d:"로미오와 줄리엣의 도시. 밀라노·피렌체 양쪽에서 돌로미티(브레너 노선)로 가는 길목.",h:["아레나 디 베로나","줄리엣의 집","에르베 광장"],hk:[]},
+{id:"sirmione",n:"시르미오네 (가르다 호수)",c:"IT",r:"롬바르디아",lat:45.4925,lng:10.6083,t:"town",nt:1,s:["su","sh"],st:["relax","scenic"],d:"가르다 호수 위로 뻗은 반도 마을. 밀라노–베로나 사이.",h:["스칼리제르 성","카툴루스 동굴 유적","호숫가 산책"],hk:[]},
+{id:"bergamo",n:"베르가모",c:"IT",r:"롬바르디아",lat:45.7037,lng:9.6669,t:"town",nt:1,s:["su","sh","wi"],st:["city"],d:"성벽으로 둘러싸인 언덕 위 구시가(치타 알타). 밀라노에서 가까움.",h:["치타 알타","베키아 광장","푸니쿨라"],hk:[]},
+{id:"bassano",n:"바사노 델 그라파",c:"IT",r:"베네토",lat:45.7656,lng:11.7273,t:"town",nt:1,s:["su","sh"],st:["city","relax"],d:"목조 다리 폰테 베키오와 그라파의 마을. 베네치아→돌로미티 길목.",h:["폰테 델리 알피니(목조 다리)","그라파 시음"],hk:[]},
+{id:"asolo",n:"아솔로",c:"IT",r:"베네토",lat:45.8003,lng:11.9137,t:"town",nt:1,s:["su","sh"],st:["relax"],d:"'백 개의 지평선의 마을'로 불리는 언덕 위 소도시. 바사노와 가까움.",h:["로카 요새","구시가 광장"],hk:[]},
+{id:"trento",n:"트렌토",c:"IT",r:"트렌티노",lat:46.0748,lng:11.1217,t:"town",nt:1,s:["su","sh","wi"],st:["city"],d:"베로나와 볼차노 사이 브레너 노선의 산악 도시.",h:["두오모 광장","부온콘실리오 성"],hk:[]},
+{id:"wengen",n:"벵엔",c:"CH",r:"베르너 오버란트",lat:46.6083,lng:7.9219,t:"sat",parent:"interlaken",mode:"day",nt:1,s:["su","sh"],st:["relax","hike","scenic"],d:"차 없는 절벽 위 마을. 인터라켄 대신 조용한 융프라우 거점으로도 좋음.",h:["클라이네 샤이덱","아이거글레처"],hk:[["아이거글레처 → 클라이네 샤이덱","쉬움","약 1시간, 완만한 하산길"]]},
+{id:"thunlake",n:"툰·브리엔츠 호숫가 마을",c:"CH",r:"베르너 오버란트",lat:46.6942,lng:7.9514,t:"sat",parent:"interlaken",mode:"day",nt:1,s:["su","sh"],st:["relax","scenic"],d:"시그리스빌·이젤발트 등 '사랑의 불시착' 촬영지와 힐터핑겐 같은 조용한 호숫가 마을.",h:["시그리스빌 출렁다리","이젤발트 선착장","룽게른"],hk:[]},
+{id:"lotschental",n:"뢰첸탈 (페르덴)",c:"CH",r:"발레",lat:46.3925,lng:7.7597,t:"sat",parent:"interlaken",mode:"day",nt:1,s:["su","sh"],st:["relax","hike"],d:"관광객이 적은 전통 목조 마을 계곡. 뢰치베르크 터널 남쪽.",h:["페르덴 마을","라우헤른"],hk:[]},
+{id:"canazei",n:"카나제이 (발 디 파사)",c:"IT",r:"돌로미티 서부",lat:46.4769,lng:11.7706,t:"hub",nt:2,s:["su","wi"],st:["hike","scenic"],d:"포르도이 고개·셀라 산군과 가까운 서부 돌로미티 마을. 오르티세이보다 숙박비가 비교적 저렴한 편이라 세체다·포르도이 거점으로 실속 있음.",h:["사스 포르도이 케이블카","콜 데이 로시","마르몰라다"],hk:[["포르도이 → 피츠 보에 방향","보통~힘듦","케이블카 하차 후 고산 능선, 피츠 보에 3,152m"],["콜 데이 로시–벨베데레 하이킹","쉬움","마르몰라다 조망"]]},
+{id:"sanvito",n:"산 비토 디 카도레",c:"IT",r:"돌로미티 동부",lat:46.4561,lng:12.2058,t:"sat",parent:"cortina",mode:"day",nt:1,s:["su","sh"],st:["relax"],d:"코르티나 남쪽의 한적한 마을. 컨디션 조절하는 쉬는 날 산책에 좋음.",h:["마을 산책","안텔라오 조망"],hk:[]},
+{id:"lindau",n:"린다우 (보덴호)",c:"DE",r:"보덴호",lat:47.5459,lng:9.6838,t:"hub",nt:2,s:["su","sh"],st:["relax","city"],d:"보덴호 위 작은 섬 구시가. 독일·오스트리아·스위스가 만나는 호수의 휴양지.",h:["린다우 항구의 사자상과 등대","섬 구시가 산책","보덴호 유람선"],hk:[["린다우 항구 산책","아주 쉬움","평지 호숫가 산책로"]]},
+{id:"stgallen",n:"장크트갈렌",c:"CH",r:"보덴호",lat:47.4245,lng:9.3767,t:"sat",parent:"lindau",mode:"enroute",nt:0,s:["su","sh","wi"],st:["city"],d:"유네스코 세계유산 수도원 구역(대성당·수도원 도서관).",h:["장크트갈렌 대성당","수도원 도서관"],hk:[]},
+{id:"appenzell",n:"아펜첼",c:"CH",r:"보덴호",lat:47.3307,lng:9.4097,t:"sat",parent:"lindau",mode:"enroute",nt:0,s:["su","sh"],st:["relax"],d:"색칠된 목조 건물과 치즈의 마을. 취리히→린다우 길에 들르기 좋음.",h:["아펜첼 구시가","아펜첼러 쇼케제라이(치즈 공방, 슈테인)"],hk:[]},
+{id:"ingolstadt",n:"잉골슈타트 빌리지 (아울렛)",c:"DE",r:"바이에른",lat:48.7686,lng:11.4718,t:"sat",parent:"munich",mode:"enroute",nt:0,s:["su","sh","wi"],st:["city"],d:"뮌헨 북쪽의 아울렛 쇼핑 빌리지. 평평한 야외 쇼핑 거리.",h:["아울렛 쇼핑"],hk:[]},
+{id:"badgoisern",n:"바트 고이제른",c:"AT",r:"잘츠카머구트",lat:47.6447,lng:13.6197,t:"hub",nt:1,s:["su","sh"],st:["relax"],d:"할슈타트에서 가까운 조용한 온천·휴양 마을. 붐비는 할슈타트 대신 머물기 좋음.",h:["할슈타트 이른 아침 방문","다흐슈타인 크리펜슈타인"],hk:[]},
+{id:"dachstein",n:"다흐슈타인 크리펜슈타인 (5 핑거스)",c:"AT",r:"잘츠카머구트",lat:47.5286,lng:13.6923,t:"sat",parent:"badgoisern",mode:"day",nt:0,s:["su","sh"],st:["scenic"],d:"오버트라운에서 케이블카로 올라 할슈타트 호수 위로 튀어나온 전망대 '5 핑거스'. 정상역에서 전망대까지 도보 구간 있음.",h:["5 핑거스 전망대","다흐슈타인 얼음동굴"],hk:[["크리펜슈타인역 → 5 핑거스","쉬움","정비된 산길, 약 30분 내외"]]},
+{id:"innsbruck",n:"인스브루크",c:"AT",r:"티롤",lat:47.2692,lng:11.4041,t:"hub",nt:2,s:["su","sh","wi"],st:["city","scenic"],d:"도시에서 바로 산으로. 시내에서 푸니쿨라·케이블카로 노르트케테까지. 숙박객 웰컴 카드로 대중교통 등 혜택(숙소에 확인).",h:["황금 지붕","호프부르크 왕궁","노르트케테 (푸니쿨라+케이블카, 제그루베 점심)","스와로브스키 크리스탈 월드"],hk:[["노르트케테 파노라마길","보통",""]]},
+{id:"zillertal",n:"질러탈 (마이어호펜)",c:"AT",r:"티롤",lat:47.1667,lng:11.8667,t:"hub",nt:2,s:["su","wi"],st:["hike","relax"],d:"산악 휴양 계곡. 힌터툭스 빙하에서 연중 스키 가능.",h:["힌터툭스 빙하","아호른 산","질러탈 증기기관차"],hk:[["아호른 산 고원 산책","쉬움",""]]},
+{id:"hallstatt",n:"할슈타트",c:"AT",r:"잘츠카머구트",lat:47.5622,lng:13.6493,t:"sat",parent:"salzburg",mode:"both",ow:1.3,nt:1,s:["su","sh","wi"],st:["scenic","relax"],d:"호숫가 그림 같은 마을. 잘츠부르크에서 당일 또는 1박 (붐비는 낮을 피해 1박 추천).",h:["스카이워크","소금광산","호숫가 전망 포인트"],hk:[]},
+{id:"salzburg",n:"잘츠부르크",c:"AT",r:"잘츠부르크",lat:47.8095,lng:13.055,t:"hub",nt:2,s:["su","sh","wi"],st:["city","relax"],d:"모차르트의 도시, 사운드 오브 뮤직 촬영지. 잘츠카머구트 거점. 차가 있다면 남쪽 근교 그뢰디히 같은 조용한 마을 숙소도 좋은 선택.",h:["미라벨 정원·대리석 홀","모차르트 생가","호엔잘츠부르크 성 (푸니쿨라로 오르기)","잘츠부르크 대성당"],hk:[]},
+{id:"stgilgen",n:"장크트길겐·볼프강호",c:"AT",r:"잘츠카머구트",lat:47.7667,lng:13.3667,t:"sat",parent:"salzburg",mode:"day",nt:0,s:["su","sh"],st:["scenic","relax"],d:"츠뵐퍼호른 케이블카와 샤프베르크 산악열차.",h:["츠뵐퍼호른","샤프베르크"],hk:[]},
+{id:"grossglockner",n:"그로스글로크너 산악도로",c:"AT",r:"호에타우에른",lat:47.0742,lng:12.7694,t:"sat",parent:"zellamsee",mode:"day",nt:0,s:["su"],st:["scenic"],d:"오스트리아 최고봉 아래 산악도로 (약 5~10월 개통, 유료). 렌터카 필수.",h:["카이저프란츠요제프회에","파스테르체 빙하"],hk:[]},
+{id:"zellamsee",n:"첼암제",c:"AT",r:"잘츠부르크주",lat:47.3236,lng:12.7966,t:"hub",nt:2,s:["su","wi"],st:["relax","scenic"],d:"호수와 키츠슈타인호른 빙하가 있는 휴양지.",h:["키츠슈타인호른","첼 호수","크림믈 폭포"],hk:[["크림믈 폭포길","쉬움~보통","오스트리아 최대 낙차 폭포"]]},
+{id:"vienna",n:"빈",c:"AT",r:"빈",lat:48.2082,lng:16.3738,t:"hub",nt:2,s:["su","sh","wi"],st:["city"],d:"오스트리아 수도. 알프스 동쪽 출입구.",h:["쇤브룬 궁전","슈테판 대성당","벨베데레"],hk:[]},
+{id:"garmisch",n:"가르미슈파르텐키르헨",c:"DE",r:"바이에른",lat:47.4917,lng:11.0955,t:"hub",nt:2,s:["su","wi","sh"],st:["hike","scenic"],d:"독일 최고봉 추크슈피체(2,962m) 거점.",h:["추크슈피체","파르트나흐 협곡","아입호수"],hk:[["파르트나흐 협곡","쉬움","약 1~2시간"]]},
+{id:"fussen",n:"퓌센 (노이슈반슈타인)",c:"DE",r:"바이에른",lat:47.5696,lng:10.7004,t:"sat",parent:"garmisch",mode:"day",nt:1,s:["su","sh","wi"],st:["city","scenic"],d:"디즈니 성의 모티브 노이슈반슈타인 성. 사전 예약 권장.",h:["노이슈반슈타인 성","마리엔 다리","호엔슈반가우"],hk:[]},
+{id:"berchtesgaden",n:"베르히테스가덴",c:"DE",r:"바이에른",lat:47.6314,lng:13.0019,t:"sat",parent:"salzburg",mode:"day",nt:1,s:["su","sh"],st:["scenic","relax"],d:"쾨니히호수와 독수리 둥지. 잘츠부르크에서 당일치기 가능.",h:["쾨니히호수 유람선","장크트 바르톨로메","켈슈타인하우스"],hk:[]},
+{id:"munich",n:"뮌헨",c:"DE",r:"바이에른",lat:48.1351,lng:11.582,t:"hub",nt:1,s:["su","sh","wi"],st:["city","relax"],d:"바이에른 알프스와 오스트리아 쪽 관문. 실내 평지 명소가 많아 편안한 여행에도 좋음.",h:["BMW 벨트 (실내, 무료 관람)","호프브로이하우스","마리엔 광장","님펜부르크 궁전"],hk:[]}
 ];
-let recStyle = "균형";
-let manStyle = "균형";
 
-const mapNodes = {
-  "취리히": { x:635, y:72, type:"ch" },
-  "루체른": { x:528, y:118, type:"ch" },
-  "인터라켄": { x:410, y:152, type:"ch" },
-  "체르마트": { x:300, y:230, type:"ch" },
-  "레만호": { x:160, y:166, type:"ch" },
-  "제네바": { x:60, y:182, type:"ch" },
-  "시그리스빌": { x:378, y:128, type:"ch" },
-  "이젤발트": { x:438, y:154, type:"ch" },
-  "룽게른": { x:470, y:175, type:"ch" },
-  "베른": { x:336, y:126, type:"ch" },
-  "힐터핑겐": { x:358, y:145, type:"ch" },
-  "스피치": { x:384, y:160, type:"ch" },
-  "Tolochenaz": { x:136, y:160, type:"ch" },
-  "Vevey": { x:150, y:173, type:"ch" },
-  "Montreux": { x:175, y:183, type:"ch" },
-  "로잔": { x:118, y:162, type:"ch" }
+const BLOG_BASE="https://blog.naver.com/jeong0207/";
+// 정영님 블로그 기반: [팁(요약), logNo]
+const BLOG={
+interlaken:[["벵엔을 거점으로 4박 5일. 아이거글레처→클라이네 샤이덱 하산길은 초보도 편한 코스","223805681632"],["두 번째 방문엔 VIP 패스로 효율적으로","223727504482"]],
+lauterbrunnen:[["라우터브루넨에서 뮈렌까지 기차로 약 20분, 소떼 지나가는 아침 풍경이 인상적","223805681632"]],
+wengen:[["벵엔을 거점으로 시작한 가을 융프라우 여행","223804899921"]],
+thunlake:[["인터라켄보다 한적한 힐터핑겐 1박, 사랑의 불시착 촬영지 코스","224314130537"]],
+lotschental:[["관광객 적은 숨은 보석 같은 마을 페르덴","223650594357"]],
+zermatt:[["고르너그라트·수네가 각각 하루씩","222003839918"],["마터호른 탐방 기록","223652029280"]],
+lucerne:[["2019 스위스 여행 첫날 루체른","222001517355"]],
+colmar:[["프랑스 알자스 3박 4일 여행기 : Day1 스트라스부르","224163700460"],["알자스 2일차 | 셀레스타 베이스캠프 → 콜마르, 눈 내린 동화 마을","224164204858"],["알자스 3일차 | 리보빌레 → 리퀘위르, 눈 덮인 와인가도","224170095099"],["알자스 여행 기념품 이야기","224173899350"]],
+strasbourg:[["프랑스 알자스 3박 4일 여행기 : Day1 스트라스부르","224163700460"]],
+winevillages:[["알자스 3일차 | 리보빌레 → 리퀘위르, 눈 덮인 와인가도","224170095099"]],
+montreux:[["라보 지역 2박, 포도밭 트레킹으로 시작하는 스위스","224314130537"],["레만호 일주 여행","223642701782"]],
+zurich:[["숙박비가 비싸 경유지가 되기 쉽지만 하루쯤 걸어볼 가치가 있는 도시","224306623897"]],
+bern:[["샤모니에서 돌아오는 길에 들른 구시가지","224314130537"]],
+chamonix:[["최소 3일은 필요, 샤모니 패스 연속권이 사실상 필수. 차가 있으면 시내 밖 무료주차 숙소도 괜찮음","224314053234"],["르 투르→콜 드 발므는 하이킹 초보에게 추천. 6월 초엔 일부 케이블카 미운영·강풍 주의","223759469723"],["에귀디미디 몽블랑 조망","223728857649"]],
+annecy:[["라보에서 샤모니로 가는 길에 들르기 좋은 호수 마을","224314053234"]],
+cortina:[["트레 치메 101→라바레도→로카텔리→105번 루프, 비 오니 약 5시간. 로카텔리 산장은 현금만","223779821440"],["밀라노 도착부터 돌로미티 동부까지","223779782459"]],
+sanvito:[["컨디션 난조 날 쉬어 가며 산책한 마을","223779866093"]],
+ortisei:[["7~8월엔 아침 일찍 주차장 만차. 일정은 유동적으로, 썸머패스가 유리","223779942060"],["세체다 & 알페 디 시우시 트레킹","223780002089"]],
+canazei:[["포르도이는 일찍 가야 주차 수월. 오후엔 콜 데이 로시 벨베데레","223780098238"]],
+milan:[["최후의 만찬·스포르체스코 성 도보 코스","223893186409"],["돌로미티에서 밀라노로 마무리","223780518775"]],
+verona:[["3시간 도보로 핵심 둘러보기","223908870011"]],
+venice:[["무라노·부라노와 산마르코, 기대 이상이었던 곳","223909726629"],["근교 몽클레어 빌리지 아울렛: 더 저렴하고 상품이 다양해 강력 추천","223909587634"]],
+florence:[["꽃 피는 도시에서 예술 산책","223912681794"]],
+bologna:[["라구와 대학 도시의 마지막 하루","223913474966"]]
 };
+const BLOG_GENERAL=[["알프스 트레킹 명소 비교: 융프라우·체르마트·샤모니·돌로미티","223781803966"],["이탈리아 렌트카 가이드 (ZTL·주차)","223908580479"],["스위스 & 프랑스 알프스 로드트립 개요","223501211687"]];
+const APPROACH_CHX={GVA:"제네바 공항에서 차로 약 1시간 (추정) 직행",annecy:"안시를 들렀다 가는 루트 (정영님 2023 루트: 라보→안시→샤모니)",montreux:"레만호(라보)에서 마르티니·포르클라 고개 경유",aosta:"이탈리아 아오스타에서 몽블랑 터널 통과",interlaken:"인터라켄에서 마르티니 경유 기차/차"};
 
-const travelTimes = {
-  "취리히|루체른":"약 1시간", "루체른|인터라켄":"약 1시간 50분", "인터라켄|체르마트":"약 2시간 30분",
-  "체르마트|레만호":"약 2시간 30분", "레만호|제네바":"약 1시간", "취리히|인터라켄":"약 2시간",
-  "취리히|체르마트":"약 3시간 40분", "취리히|레만호":"약 3시간 20분", "제네바|레만호":"약 40분",
-  "제네바|체르마트":"약 2시간 50분", "제네바|인터라켄":"약 2시간 20분", "제네바|루체른":"약 3시간",
-  "레만호|취리히":"약 3시간 20분", "체르마트|인터라켄":"약 2시간 30분", "인터라켄|루체른":"약 1시간 50분",
-  "루체른|취리히":"약 1시간", "레만호|체르마트":"약 2시간 30분", "체르마트|제네바":"약 2시간 50분",
-  "인터라켄|제네바":"약 2시간 20분", "루체른|제네바":"약 3시간"
+// 이동 편의 메모 (평지/계단/경사)
+const ACC={lindau:"평지 · 섬 항구 산책로 완만",lucerne:"평지 호숫가 · 유람선",montreux:"호숫가 평지 산책로",stgallen:"구시가 평지",appenzell:"평지 마을",munich:"BMW 벨트 실내 평지 · 엘리베이터",ingolstadt:"평평한 야외 쇼핑 거리",salzburg:"구시가 평지 · 성은 푸니쿨라로",hallstatt:"호숫가 평지, 골목은 일부 경사 · 성수기 혼잡",stgilgen:"유람선·케이블카로 편하게",dachstein:"케이블카 후 정비된 산길 · 고도 주의",innsbruck:"구시가 평지 · 노르트케테는 푸니쿨라+케이블카",zurich:"구시가 일부 언덕·돌길",interlaken:"평지 마을 · 산악열차로 전망대",zermatt:"마을 평지 · 고르너그라트 열차로 전망대",como:"호숫가 마을은 계단·경사 많음",annecy:"구시가·호숫가 평지",cortina:"마을 평지 · 트레킹은 고도·경사",ortisei:"마을 평지 · 케이블카로 고원",chamonix:"마을 평지 · 고산 전망대는 고도 3,800m 주의",venice:"다리마다 계단 많음",verona:"구시가 평지",braies:"호수 일주로 대체로 평탄",zellamsee:"호숫가 평지 산책로"};
+const CARDS={innsbruck:"숙박객 '웰컴 카드': 대중교통 무료 등 혜택 (숙소 조건 확인)",salzburg:"잘츠부르크 카드: 주요 명소·대중교통 포함 (유료). 숙소에 따라 숙박객 대중교통 혜택이 있으니 확인",zellamsee:"첼암제–카프룬 서머카드 (숙박객, 조건 확인)",lucerne:"숙박객 '비지터 카드' 시내 대중교통 (조건 확인)",interlaken:"숙박객 '게스트 카드' 지역 교통 혜택 (조건 확인)",zermatt:"차 없는 마을, 전기택시·도보",annecy:"",stgilgen:""};
+
+const FAV=new Set(["zermatt","lotschental","cortina","sanvito","ortisei","canazei","montreux","colmar"]);
+const FAV_HIKES=[["5개 호수길","223781803966"],["락블랑","224314053234"],["포르도이","223780098238"],["라가주오이",""]];
+const favHike=n=>FAV_HIKES.find(([k])=>n.includes(k));
+const hikeBadge=n=>favHike(n)?" <span class=\"badge hike\">정영님 추천 트레킹</span>":"";
+
+const $=s=>document.querySelector(s);
+let CUSTOM={};// 직접 입력 지오코딩 결과
+function place(key){if(!key)return null;if(typeof key==="object")return key;
+ if(key.startsWith("g:")){const g=GATES[key.slice(2)];return{key,id:key.slice(2),name:g[0],c:g[1],lat:g[2],lng:g[3],ap:!!g[4]}}
+ if(key.startsWith("d:")){const x=D.find(x=>x.id===key.slice(2));return{key,id:x.id,name:x.n,c:x.c,lat:x.lat,lng:x.lng,ap:false}}
+ if(key.startsWith("c:"))return CUSTOM[key];return null}
+const byId=Object.fromEntries(D.map(x=>[x.id,x]));
+const POP={interlaken:3,chamonix:3,ortisei:3,cortina:2.5,lucerne:2.5,salzburg:2.5,zermatt:3,como:2,innsbruck:1.5,annecy:2,hallstatt:3,stmoritz:1.5,montreux:1};
+const COST={CH:4,lindau:3,stgallen:4,appenzell:4,ingolstadt:3,badgoisern:2,dachstein:2,canazei:2,sanvito:2,wengen:4,thunlake:4,lotschental:3,zermatt:4,stmoritz:4,interlaken:4,lugano:4,chamonix:3,annecy:3,courmayeur:3,ortisei:3,cortina:3,braies:3,como:3,venice:3,milan:3,aosta:2,bolzano:2,trento:2,verona:2,bologna:2,bergamo:2,sirmione:2,bassano:2,asolo:2,florence:2,innsbruck:2,zillertal:2,hallstatt:3,salzburg:3,stgilgen:2,zellamsee:3,grossglockner:2,vienna:3,garmisch:3,fussen:2,berchtesgaden:2,munich:3};
+const cost=x=>COST[x.id]||COST[x.c]||3;const won=x=>"₩".repeat(cost(x))+"<span class=dim>"+"₩".repeat(4-cost(x))+"</span>";
+const ST={comfort:"🛋️ 편안한 여행",trek:"⛰️ 본격 트레킹",scenic:"🚞 풍경·열차",hike:"🥾 하이킹",city:"🏛️ 도시·문화",relax:"🌿 여유·휴양"};
+const SE={su:"여름(6~9월)",sh:"봄·가을(5,10월)",wi:"겨울(12~3월)"};
+const MODE={drive:"🚗 렌터카",train:"🚆 대중교통"};
+function km(a,b){const R=6371,r=Math.PI/180,dl=(b.lat-a.lat)*r,dg=(b.lng-a.lng)*r;const h=Math.sin(dl/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dg/2)**2;return 2*R*Math.asin(Math.sqrt(h));}
+function travel(a,b){const k=km(a,b)*1.35;if(k<3)return"";const inDolo=p=>p.lat>46.3&&p.lat<46.85&&p.lng>11.5&&p.lng<12.4;const sp=inDolo(a)&&inDolo(b)?35:70;let h=Math.max(.5,Math.round(k/sp*2)/2);return`약 ${h}시간 (거리 기반 추정)`;}
+function oneWay(a,b){return b.ow||Math.round(km(a,b)*1.35/70*10)/10}
+function segDist(p,a,b){// approx km from p to segment ab
+ const x=q=>q.lng*75,y=q=>q.lat*111;const px=x(p),py=y(p),ax=x(a),ay=y(a),bx=x(b),by=y(b);const dx=bx-ax,dy=by-ay;let t=dx||dy?((px-ax)*dx+(py-ay)*dy)/(dx*dx+dy*dy):0;t=Math.max(0,Math.min(1,t));return Math.hypot(px-ax-t*dx,py-ay-t*dy);}
+function pathLen(r,start,end){let s=0,p=start;for(const n of r){s+=km(p,n);p=n}return s+km(p,end)}
+function orderRoute(nodes,start,end){
+ if(nodes.length<=1)return[...nodes];
+ if(nodes.length<=8){// 완전 탐색 (분기 한정)
+  let best=null,bestL=Infinity;const n=nodes.length,used=new Array(n).fill(false),cur=[];
+  const rec=(p,L)=>{if(L>=bestL)return;if(cur.length===n){const t=L+km(p,end);if(t<bestL){bestL=t;best=[...cur]}return}
+   for(let i=0;i<n;i++)if(!used[i]){used[i]=true;cur.push(nodes[i]);rec(nodes[i],L+km(p,nodes[i]));cur.pop();used[i]=false}};
+  rec(start,0);return best;}
+ // 그 이상: 최소 삽입 + 2-opt
+ let out=[];for(const x of nodes){let bi=0,bc=Infinity;for(let k=0;k<=out.length;k++){const a=k?out[k-1]:start,b=k<out.length?out[k]:end;const c=km(a,x)+km(x,b)-km(a,b);if(c<bc){bc=c;bi=k}}out.splice(bi,0,x)}
+ let improved=true;while(improved){improved=false;for(let i=0;i<out.length-1;i++)for(let j=i+1;j<out.length;j++){const c=[...out.slice(0,i),...out.slice(i,j+1).reverse(),...out.slice(j+1)];if(pathLen(c,start,end)<pathLen(out,start,end)-.1){out=c;improved=true}}}
+ return out;}
+function insertCost(path,x,start,end){let bc=Infinity;for(let k=0;k<=path.length;k++){const a=k?path[k-1]:start,b=k<path.length?path[k]:end;bc=Math.min(bc,km(a,x)+km(x,b)-km(a,b))}return bc}
+function score(x,o){let s=(POP[x.id]||0)+(typeof FAV!=="undefined"&&FAV.has(x.id)?1.5:0)+((o.style==="hike"||o.style==="trek")&&(x.id==="zermatt"||x.id==="chamonix")?3:0);const isCity=x.st.includes("city"),isNat=x.st.some(t=>t==="hike"||t==="scenic");if(o.mix==="city")s+=isCity?2.5:0;if(o.mix==="nature")s+=isNat?1.5:(isCity?-2:0);if(o.style==="comfort"){s+=(x.st.includes("relax")?3:0)+(ACC[x.id]&&/평지/.test(ACC[x.id])?2:0)-(x.st.length===1&&x.st[0]==="hike"?4:0)-(/계단 많/.test(ACC[x.id]||"")?3:0);}if(o.style==="trek")s+=x.st.includes("hike")?3:-1;s+=x.st.includes(o.style)?3:0;s+=x.s.includes(o.season)?2:-4;if(o.style!=="city"&&x.st.length===1&&x.st[0]==="city")s-=2;if(o.mode==="train"&&x.id==="grossglockner")s-=10;const mo=o.month||0;if(x.r==="알자스"){if(mo>=9)s+=x.t==="hub"?9:3;else if(mo)s-=4;}if(mo&&(mo===12||mo<=3)){if(x.id==="interlaken")s+=5;if(["ortisei","cortina"].includes(x.id))s+=2;if(x.st.includes("city"))s+=2;if(x.st.length===1&&x.st[0]==="hike")s-=4;}if(o.budget==="save")s-=(cost(x)-2)*1.5;return s;}
+// ---------- core planner: hubs [{x,n}] + satellites -> days ----------
+function plan(o,hubs,sats){
+ const A=place(o.entry),B=place(o.exit);const far=(p)=>Math.min(...hubs.map(h=>km(p,h.x)))>250;
+ const apx=APPROACH[o.approach];
+ const pin=o.pin?o.pin.map(id=>hubs.find(h=>h.x.id===id)).filter(Boolean):apx?[apx.from,apx.stay].map(id=>hubs.find(h=>h.x.id===id)).filter(Boolean):[];
+ const rest=hubs.filter(h=>!pin.includes(h));
+ const startPt=pin.length?pin[pin.length-1].x:A;
+ const days0=[];if(o.rest)days0.push({hub:null,title:`${A.name} 도착 → 공항 근처 호텔에서 휴식`,body:"장거리 비행 뒤 첫날은 무리하지 않고 공항 근처 호텔에서 푹 쉬기. 렌터카는 다음 날 인수.",tag:"휴식"});
+ const ord=[...pin,...orderRoute(rest.map(h=>h.x),startPt,B).map(x=>hubs.find(h=>h.x===x))];
+ const days=days0;let prev=A,prevName=A.name;const ap=APPROACH[o.approach];let hinted=false;
+ ord.forEach((h,i)=>{
+  const x=h.x,last=i===ord.length-1;
+  if(km(prev,x)<15){days.push({hub:x,title:`${x.n} 여행 시작`,body:`체크인 후 ${x.h[0]} 주변 가볍게.`,tag:"시작"});}else
+  days.push({hub:x,title:(i===0?(o.rest?`${A.name} 근처 호텔 출발 → `:`${A.name} 출발 → `):`${prevName} → `)+x.n,body:(i===0&&far(A)?"🚗 장거리 이동일 · ":"")+`이동 ${travel(prev,x)||"근거리"}${prev.c&&prev.c!==x.c?" · 🛂 국경 넘는 이동":""}. 도착 후 ${x.h[0]} 주변 가볍게.`,tag:"이동"});
+  if(x.id==="chamonix"){const k=prev.id==="geneva"?"GVA":(prev.id&&APPROACH_CHX[prev.id]?prev.id:null);days[days.length-1].body+=" 🚠 샤모니 진입: "+(k?APPROACH_CHX[k]:"제네바 직행·안시 경유·레만호(포르클라 고개)·아오스타(몽블랑 터널) 중 선택")+".";}
+  if(ap&&!hinted&&["ortisei","cortina","bolzano"].includes(x.id)){hinted=true;const t=ap.towns.filter(id=>!hubs.find(h=>h.x.id===id)&&id!==x.id).map(id=>byId[id].n);if(t.length)days[days.length-1].body+=` 🇮🇹 가는 길에 들러볼 소도시: ${t.join(", ")}.`;}
+  const enr=sats.filter(s=>(s.x.parent===x.id||s.host===x.id)&&(s.x.mode==="enroute"||s.mode==="enroute"));if(enr.length)days[days.length-1].body+=" 🚗 가는 길에 들르기: "+enr.map(s=>s.x.n+" ("+s.x.h[0]+")").join(", ")+".";
+  if(o.style==="comfort"&&CARDS[x.id])days[days.length-1].body+=" 🎫 "+CARDS[x.id]+".";
+  let free=h.n-1;
+  const mySats=sats.filter(s=>s.x.mode!=="enroute"&&s.mode!=="enroute").filter(s=>s.x.parent===x.id||s.host===x.id).sort((a,b)=>b.sc-a.sc);
+  const acts=[...x.hk.filter(k=>!((o.style==="hike"||o.style==="trek")&&favHike(k[0]))).map(k=>({t:`🥾 ${k[0]}${hikeBadge(k[0])}`,b:`난이도 ${k[1]}${k[2]?" · "+k[2]:""}`})),...x.h.map(k=>({t:`📍 ${k}`,b:""}))];
+  let ai=0;
+  if(o.style==="hike"||o.style==="trek"){for(const k of x.hk.filter(k=>favHike(k[0]))){if(free<=0)break;days.push({hub:x,title:`🥾 ${k[0].replace(/^⭐ /,"")} 트레킹 데이`,body:`${k[0]}${hikeBadge(k[0])} · 난이도 ${k[1]} — ${k[2]}. 날씨 좋은 날로 배치하고 아침 일찍 출발 추천.`,tag:"트레킹"});free--;}}
+  for(const s of mySats){
+   if(free<=0)break;
+   if(s.mode==="1n2d"&&free>=2){days.push({hub:x,sat:s.x,title:`[1박2일] ${x.n} → ${s.x.n}`,body:`${s.x.d} 추천: ${s.x.h.join(", ")}. 이동 ${travel(x,s.x)}.${s.x.hk[0]?" 🥾 "+s.x.hk[0][0]+hikeBadge(s.x.hk[0][0])+" ("+s.x.hk[0][1]+")":""}`,tag:"1박2일"});days.push({hub:x,sat:s.x,title:`${s.x.n} 오전 관광 → ${x.n} 복귀`,body:`${s.x.h.slice(1).join(", ")||s.x.h[0]} 후 거점으로 복귀.`,tag:"1박2일"});free-=2;}
+   else{days.push({hub:x,sat:s.x,title:`[당일치기] ${s.x.n}`,body:`${s.x.d} 추천: ${s.x.h.join(", ")}. 왕복 각 ${travel(x,s.x)}.${s.x.hk[0]?" 🥾 "+s.x.hk[0][0]+hikeBadge(s.x.hk[0][0])+" ("+s.x.hk[0][1]+", "+s.x.hk[0][2]+")":""}`,tag:"당일"});free--;}
+  }
+  while(free>0){const pick=acts.slice(ai,ai+2);ai+=2;days.push({hub:x,title:`${x.n} 집중 탐방`,body:pick.length?pick.map(p=>p.t+(p.b?` (${p.b})`:"")).join(" / "):"여유롭게 휴식·카페·호숫가 산책",tag:"관광"});free--;}
+  prev=x;prevName=x.n;
+ });
+ if(km(prev,B)<15)days.push({hub:null,title:`${B.name}에서 여행 마무리`,body:"마지막 날은 가볍게 산책 후 다음 일정으로.",tag:"마무리"});else days.push({hub:null,title:`${prevName} → ${B.name} (여행 마무리)`,body:(far(B)?"🚗 장거리 이동일 · ":"")+`이동 ${travel(prev,B)||"근거리"}. 다음 일정에 맞춰 여유 있게 출발.`+(B.id==="venice"&&typeof shoppingDay==="function"?`<div class=${o.mix==="city"||o.mode==="drive"?"hi":"tip"}>베네치아에서 하루 더 머문다면 ${shoppingDay(o)}</div>`:""),tag:"이동"});
+ return {ord,days,A,B,sats};
+}
+const APPROACH={
+ milan:{name:"밀라노에서 진입",from:"milan",stay:"verona",towns:["bergamo","sirmione","verona","trento"],note:"밀라노 쇼핑·관광 후 베르가모 → 가르다 호수(시르미오네) → 베로나 → 브레너 노선(트렌토·볼차노) 따라 북상"},
+ venice:{name:"베네치아에서 진입",from:"venice",stay:"bassano",towns:["bassano","asolo"],note:"베네치아 관광 후 바사노 델 그라파·아솔로를 거쳐 산으로. 코르티나 쪽 진입에 특히 자연스러움"},
+ florence:{name:"피렌체에서 진입",from:"florence",stay:"verona",towns:["bologna","verona","trento"],note:"피렌체 → 볼로냐 → 베로나 → 트렌토 → 볼차노, 고속열차·브레너 노선을 따라 북상"}};
+function applyApproach(o,hubs){
+ const ap=APPROACH[o.approach];let hinted=false;if(!ap)return null;
+ const dolo=hubs.find(h=>["ortisei","cortina","bolzano"].includes(h.x.id));if(!dolo)return null;
+ const add=(id,n)=>{if(!hubs.find(h=>h.x.id===id)){hubs.push({x:byId[id],n});return n}return 0};
+ const F=byId[ap.from],Bp=place(o.exit);let freed=0;
+ for(let i=hubs.length-1;i>=0;i--){if(segDist(hubs[i].x,F,Bp)>130){freed+=hubs[i].n;hubs.splice(i,1);}}
+ if(freed){hubs.sort((a,b)=>b.n-a.n);hubs[0].n+=freed;}
+ let took=add(ap.from,1);
+ if(o.days>=8)took+=add(ap.stay,1);
+ // take nights back from largest hubs
+ while(took-->0){hubs.sort((a,b)=>b.n-a.n);if(hubs[0].n>1)hubs[0].n--;}
+ return ap;}
+// ---------- recommend mode ----------
+function recommend(o){
+ if(o.month===11)return novPlan(o);if((o.style==="trek"||o.style==="hike")&&typeof trekPlan==="function"){const t=trekPlan(o);if(t)return t;}
+ const A=place(o.entry),B=place(o.exit);
+ if(o.style==="comfort"){o.pace="slow";o.rest=!!A.ap;}
+ const N=o.days-1-(o.rest?1:0);
+ const ok=x=>o.countries.includes(x.c);
+ const spread=Math.max(80,o.days*30);
+ const alp=p=>{const hs=D.filter(x=>x.t==="hub");let b=hs[0];for(const h of hs)if(km(p,h)<km(p,b))b=h;return km(p,b)>200?b:p};
+ const Ac=alp(A),Bc=alp(B);
+ let cand=D.filter(x=>x.t==="hub"&&ok(x)).map(x=>({x,sc:score(x,o)-segDist(x,Ac,Bc)/spread*3}));
+ // Zermatt becomes its own hub on long trips
+ const zm=byId.zermatt,promoteZ=ok(zm)&&o.days>=11&&zm.s.includes(o.season);
+ if(promoteZ)cand.push({x:zm,sc:score(zm,o)});
+ if(o.style==="trek"){for(const id of ["chamonix","ortisei","cortina"]){const c=cand.find(c=>c.x.id===id);if(c)c.sc+=20;}}
+ // 돌로미티 4박 이상이면 동·서부 나눠서
+ cand.sort((a,b)=>b.sc-a.sc);
+ const hubs=[];let used=0;
+ const target=o.pace==="slow"?1.25:1;
+ // 점수 - 우회 비용(회랑에서 벗어나는 거리)으로 하나씩 추가
+ const kmPerPt=Math.max(45,o.days*6);let pool=[...cand],path=[];
+ while(used<N&&pool.length){let best=null,bv=-Infinity;
+  for(const c of pool){const n=Math.max(1,Math.round(c.x.nt*target));if(used+n>N)continue;const ord=orderRoute(path,Ac,Bc);const v=c.sc-insertCost(ord,c.x,Ac,Bc)/kmPerPt;if(v>bv){bv=v;best=c}}
+  if(!best||(bv<-3&&hubs.length))break;
+  const n=Math.max(1,Math.round(best.x.nt*target));hubs.push({x:best.x,n});used+=n;path.push(best.x);pool=pool.filter(c=>c!==best);}
+ const dw=hubs.find(h=>["ortisei","canazei"].includes(h.x.id)),de=hubs.find(h=>h.x.id==="cortina");
+ if(o.countries.includes("IT")&&(dw||de)&&!(dw&&de)&&o.days>=8){const one=dw||de;if(one.n>=3){const other=byId[dw?"cortina":"ortisei"];one.n--;hubs.push({x:other,n:1});}}
+ let i=0;while(used<N&&hubs.length){hubs.sort((a,b)=>score(b.x,o)-score(a.x,o));hubs[i%hubs.length].n++;used++;i++;}
+ const ap=applyApproach(o,hubs);
+ const hubIds=hubs.map(h=>h.x.id);
+ const sats=D.filter(x=>x.t==="sat"&&ok(x)&&hubIds.includes(x.parent)&&!hubIds.includes(x.id)&&x.s.includes(o.season)&&!(o.mode==="train"&&x.id==="grossglockner"))
+  .map(x=>{const h=hubs.find(h=>h.x.id===x.parent);return{x,sc:score(x,o),mode:(x.mode==="both"&&h.n>=4&&o.style!=="comfort")?"1n2d":"day"}}).filter(s=>!(o.style==="comfort"&&(s.x.st.length===1&&s.x.st[0]==="hike"||oneWay(byId[s.x.parent],s.x)>1.5)));
+ const r=plan(o,hubs,sats);r.approach=ap;return r;
+}
+// ---------- preset: 취리히 왕복 오스트리아·독일 루프  ----------
+function presetLoop(o){
+ const N=o.days-1;o.entry=o.exit="g:zurich";o.mode="drive";o.rest=true;o.pin=["lindau","munich","salzburg","badgoisern","innsbruck"];
+ let base=[["lindau",2],["munich",1],["salzburg",3],["badgoisern",1],["innsbruck",2]];
+ let avail=N-1;// 첫날 공항 휴식
+ const drop=["badgoisern","munich"];
+ while(base.reduce((s,b)=>s+b[1],0)>avail){const big=base.find(b=>b[0]==="salzburg"&&b[1]>2)||base.find(b=>b[0]==="innsbruck"&&b[1]>1)||base.find(b=>b[0]==="lindau"&&b[1]>1);if(big)big[1]--;else{const d=drop.shift();if(!d)break;base=base.filter(b=>b[0]!==d);}}
+ const grow=["salzburg","innsbruck","lindau","munich"];let i=0;while(base.reduce((s,b)=>s+b[1],0)<avail){base.find(b=>b[0]===grow[i%4])[1]++;i++;}
+ const hubs=base.map(([id,n])=>({x:byId[id],n}));
+ const ids=hubs.map(h=>h.x.id);
+ let satIds=["stgallen","appenzell","ingolstadt","stgilgen","hallstatt","dachstein"].filter(id=>ids.includes(byId[id].parent));
+ if(!ids.includes("badgoisern"))satIds.push("hallstatt");
+ const hasBG=ids.includes("badgoisern");
+ const sats=[...new Set(satIds)].map(id=>{const x=byId[id];if(hasBG&&(id==="hallstatt"||id==="dachstein"))return{x,sc:5,mode:"enroute",host:"badgoisern"};return{x,sc:id==="stgilgen"?6:5,mode:"day"}});
+ const r=plan(o,hubs,sats);r.days[r.days.length-1].body+=" 시간 여유가 있으면 반납 전 취리히 구시가 니더도르프를 가볍게 산책.";r.preset=true;return r;}
+// ---------- manual mode ----------
+function manual(o,sel){
+ const N=o.days-1;let hubs=[],sats=[];
+ for(const [id,m] of Object.entries(sel)){const x=byId[id];
+  if(x.t==="hub"||m==="hub"||!sel[x.parent])hubs.push({x,n:x.nt||1});
+  else sats.push({x,sc:score(x,o),mode:m==="1n2d"?"1n2d":"day"});}
+ let warn="";
+ const satDays=sats.reduce((s,a)=>s+(a.mode==="1n2d"?2:1),0);
+ let want=hubs.reduce((s,h)=>s+h.n,0);
+ if(want+satDays>N&&hubs.length){// shrink
+  while(hubs.reduce((s,h)=>s+h.n,0)>Math.max(hubs.length,N-0)&&hubs.some(h=>h.n>1)){hubs.sort((a,b)=>b.n-a.n);hubs[0].n--;}
+  if(hubs.length>N)warn=`선택한 거점(${hubs.length}곳)이 ${N}박보다 많아요. 일부를 빼거나 기간을 늘려주세요.`;
+  else if(hubs.reduce((s,h)=>s+h.n,0)-hubs.length<satDays)warn="당일치기·1박2일을 모두 넣기엔 일정이 빠듯해 일부 위성 일정이 빠졌어요.";
+ }
+ let used=hubs.reduce((s,h)=>s+h.n,0),i=0;
+ // ensure host hubs have room for satellites
+ for(const s of sats){const h=hubs.find(h=>h.x.id===s.x.parent);const need=(s.mode==="1n2d"?2:1);if(h&&used<N){const add=Math.min(need,N-used);h.n+=add;used+=add;}}
+ while(used<N&&hubs.length){hubs[i%hubs.length].n++;used++;i++;}
+ if(hubs.length>N)hubs=hubs.slice(0,N);
+ const r=plan(o,hubs,sats);r.warn=warn;return r;
+}
+if(typeof module!=="undefined")module.exports={presetLoop,recommend,manual,D,GATES,APPROACH,place};
+
+// ---------- 트레킹 스타일 전용 플래너: 적은 거점, 긴 체류, 트레킹-휴식 리듬 ----------
+const DOLO_BASES={ortisei:{id:"ortisei",n:"오르티세이 (발 가르데나)",lat:46.5747,lng:11.6719},selva:{id:"selva",n:"셀바 디 발 가르데나",lat:46.5555,lng:11.7616},santacristina:{id:"santacristina",n:"산타 크리스티나 (발 가르데나)",lat:46.5594,lng:11.7203},canazei:{id:"canazei",n:"카나제이 (발 디 파사)",lat:46.4769,lng:11.7706},arabba:{id:"arabba",n:"아라바",lat:46.4969,lng:11.8744},cortina:{id:"cortina",n:"코르티나 담페초",lat:46.5405,lng:12.1357},sanvito:{id:"sanvito",n:"산 비토 디 카도레",lat:46.4561,lng:12.2058}};
+// 이동일에 들르는 도중 소도시
+const ENROUTE=[["볼차노",46.4983,11.3548,"남티롤 중심 도시, 외치 아이스맨 박물관과 구시가"],["베로나",45.4384,10.9916,"아레나와 줄리엣의 집이 있는 구시가"],["트렌토",46.0748,11.1217,"두오모 광장과 부온콘실리오 성"],["베르가모",45.7037,9.6669,"언덕 위 성곽 구시가 치타 알타"],["시르미오네",45.4925,10.6083,"가르다 호수 반도 위 성과 마을"],["바사노 델 그라파",45.7656,11.7273,"목조 다리와 그라파의 마을"],["아솔로",45.8003,11.9137,"언덕 위 '백 개의 지평선' 소도시"],["안시",45.8992,6.1294,"호수와 운하 구시가"],["마르티니",46.1027,7.0727,"발레 주 관문 도시"],["쿠어",46.8508,9.532,"스위스에서 가장 오래된 도시로 꼽히는 구시가"]];
+const MONCLER={lat:45.5941,lng:12.0344},NOVENTA={lat:45.6563,lng:12.5258};
+function shoppingDay(o){const k=Math.round(km(MONCLER,NOVENTA)*1.3/5)*5,h=`약 ${Math.round(k/65*60/5)*5}분`;
+ return `🛍️ 쇼핑 데이: 몽클레어 빌리지 <span class=badge>정영님 추천</span> (가격이 더 저렴하고 상품 구성이 다양해 강력 추천 — 방문 전 영업시간 확인 <a href="${BLOG_BASE}223909587634" target=_blank rel=noopener>블로그 후기 ↗</a>) + 노벤타 디 피아베 디자이너 아울렛을 하루에. 두 곳은 도로로 약 ${k}km, 차로 ${h} 정도 (직선거리 기반 추정)라 렌터카가 가장 편해요.`}
+const CITYDAY={venice:["베네치아 본섬 (산마르코 광장·리알토 다리)","부라노·무라노 섬 투어 (수상버스)","쇼핑: 노벤타 디 피아베 디자이너 아울렛 (피아찰레 로마에서 ATVO 직행 버스 약 1.5시간)","쇼핑: 몽클레어 빌리지 (파도바 근교 트레바셀레게) — 방문 전 영업시간 확인"],
+ milan:["두오모·갤러리아 비토리오 에마누엘레 2세","최후의 만찬 (사전 예약 필수)","쇼핑: 몬테나폴레오네 거리 또는 세라발레 디자이너 아울렛"],
+ munich:["마리엔 광장·빅투알리엔 시장","BMW 벨트·올림픽 공원","쇼핑: 잉골슈타트 빌리지 아울렛"],
+ zurich:["구시가 니더도르프·취리히 호수","반호프 거리 쇼핑"],geneva:["레만호 제트 분수·구시가","카루주 마을 산책"]};
+const enUsed=new Set();
+function enrouteStop(p,q){if(!p||!q)return"";const base=km(p,q);if(base<60)return"";let best=null,bd=Infinity;for(const e of ENROUTE){if(enUsed.has(e[0]))continue;const pt={lat:e[1],lng:e[2]};if(km(pt,p)<25||km(pt,q)<25)continue;const det=km(p,pt)+km(pt,q)-base;if(det<Math.max(25,Math.min(60,base*.3))&&!best){best=e}}
+ if(!best)return"";enUsed.add(best[0]);return ` 🏙️ 가는 길에 ${best[0]} 들르기 — ${best[3]}.`;}
+const TREK_REG={
+ chx:{hub:"chamonix",name:"샤모니 몽블랑",c:"FR",min:4,cap:6,
+  treks:[["⭐ 락블랑 (Lac Blanc, 2,352m)","보통~힘듦","라 플레제르에서 왕복 약 3~4시간 (추정). 돌아오는 길에 락 데 쉐즈리"],["⭐ 그랑 발콩 노르: 에귀디미디 → 플랑 드 레귀유 → 몽탕베르","보통","오전 에귀디미디 전망대 후 중간역에서 하차, 약 2~3시간 걸어 메르드글라스·몽탕베르 열차로 하산"],["르 투르 → 콜 드 발므 + 브레방 전망","쉬움~보통","오전 국경석 하이킹, 오후 브레방에서 몽블랑 정면 조망"]],
+  rest:[["샤모니 시내",45.9237,6.8694,"아웃도어 숍과 카페가 모인 몽블랑 아래 산악 마을"],["레우슈",45.8925,6.7984,"샤모니 남쪽 몽블랑 산군 아래 조용한 산골 마을"],["안시",45.8992,6.1294,"맑은 호수와 운하 구시가의 '알프스의 베네치아' (제네바 쪽, 차로 약 1시간 추정)"],["쿠르마예르",45.7969,6.9689,"몽블랑 터널 너머 이탈리아 쪽 산악 마을, 스카이웨이 몽블랑"],["발로르신",46.0331,6.9303,"스위스 국경 쪽 한적한 계곡 마을, 몽블랑 익스프레스 열차 노선"],["에모송 호수",46.0681,6.9372,"국경 산 위 댐 호수, 몽블랑 산군 조망 (스위스 쪽 진입)"],["마르티니·포르클라 고개",46.1027,7.0727,"발레 주 관문 도시, 로마 유적과 지아나다 재단 미술관"]]},
+ zmt:{hub:"zermatt",name:"체르마트",c:"CH",min:3,cap:4,
+  treks:[["5개 호수길 (5-Seenweg)","보통","블라우헤르트 출발 약 10km·2.5~3시간, 이후 수네가 전망"],["고르너그라트 → 리펠제 → 리펠베르크","쉬움~보통","전망 열차로 올라 리펠제의 마터호른 반영, 내리막 산책"]],
+  rest:[["체르마트 마을",46.0207,7.7491,"차 없는 마을 산책, 마터호른 박물관·옛 목조 창고 골목"],["태쉬",46.0695,7.7781,"체르마트 바로 아래 마을, 셔틀 열차 환승지"],["사스페",46.1094,7.9283,"빙하에 둘러싸인 또 하나의 차 없는 산악 마을"],["뢰첸탈 (페르덴)",46.3925,7.7597,"관광객 적은 전통 목조 마을 계곡",1],["비스프",46.2937,7.8815,"발레 주 교통 요지의 작은 구시가"]]},
+ dw:{hub:"ortisei",name:"돌로미티 서부",c:"IT",min:3,cap:6,
+  bases:["ortisei","selva","santacristina","canazei","arabba"],treks:[["세체다 능선 + 콜 라이저","보통","케이블카로 세체다에 올라 능선 산책, 콜 라이저 쪽으로 하산 (돌로미티 필수 코스)"],["사스 포르도이 → 피츠 보에 방향 (포르도이 고개)","보통~힘듦","포르도이 고개 케이블카로 사스 포르도이(약 2,950m)에 올라 피츠 보에(3,152m) 방향 고산 능선. 고개 주차장은 아침 일찍"],["알페 디 시우시 고원 일주","쉬움~보통","유럽 최대 고산 초원, 여러 산장 들르며 긴 하루"],["콜 데이 로시–벨베데레 (카나제이)","쉬움","마르몰라다 조망 능선 산책"]],
+  rest:[["오르티세이 마을",46.5747,11.6719,"발 가르데나 중심 마을, 목각 공예 거리"],["카스텔로토",46.5667,11.5597,"슐레른 산 아래 언덕 위 아기자기한 마을"],["산타 막달레나 (푸네스 계곡)",46.6425,11.7175,"작은 성당과 오들레 산군의 엽서 같은 풍경"],["볼차노",46.4983,11.3548,"남티롤 중심 도시, 외치 아이스맨 박물관"],["셀바 디 발 가르데나",46.5555,11.7616,"셀라 산군 아래 마을, 카페 산책"]]},
+ de:{hub:"cortina",name:"돌로미티 동부",c:"IT",min:3,cap:6,
+  bases:["cortina","sanvito"],treks:[["⭐ 트레 치메 순환 (101→로카텔리→105)","보통","아우론초 산장 출발 약 10km·4~5시간. 로카텔리 산장은 현금 준비 (동부 필수 코스)"],["라가주오이 + 친퀘 토리 (팔차레고 고개)","쉬움~보통","팔차레고 고개 케이블카로 라가주오이(약 2,750m) 전망과 1차 대전 터널, 친퀘 토리 바위탑"],["브라이에스 호수 일주 + 도비아코 호수","쉬움","호수 둘레길 위주 (성수기 차량 예약제 확인)"]],
+  rest:[["산 비토 디 카도레",46.4561,12.2058,"코르티나 남쪽, 안텔라오와 펠모 산 아래 조용한 마을",1],["미주리나 호수",46.5822,12.2531,"트레 치메 아래 고요한 호수"],["도비아코",46.7333,12.2236,"도비아코 호수와 푸스테리아 계곡의 마을"],["브루니코",46.7966,11.9363,"성과 메스너 산악박물관이 있는 푸스테리아 계곡 도시"]]}
 };
-
-const linkGroups = {
-  "루체른":[{title:"루체른 여행", url:"https://blog.naver.com/jeong0207/222001517355"}],
-  "인터라켄 / 소도시":[
-    {title:"인터라켄 여행기", url:"https://blog.naver.com/jeong0207/221471997119"},
-    {title:"몽블랑과 스위스 소도시여행", url:"https://blog.naver.com/jeong0207/223260034758"}
-  ],
-  "체르마트":[
-    {title:"고르너그라트 하이킹", url:"https://blog.naver.com/jeong0207/222003839918"},
-    {title:"5대호수 트래킹", url:"https://blog.naver.com/jeong0207/222004644433"}
-  ],
-  "레만호":[
-    {title:"제네바와 이브와르", url:"https://blog.naver.com/jeong0207/223631742092"},
-    {title:"라보와이너리와 레만호 주변 도시들", url:"https://blog.naver.com/jeong0207/223642701782"}
-  ]
-};
-
-const state = {
-  regions: { lucerne:false, interlaken:true, zermatt:true, lakegeneva:false },
-  lucerne: { city:true, cruise:false, rigi:false },
-  interlaken: {
-    jungfrau:true, wengen:false, kleine:false, maennlichen:false,
-    first:true, harder:false, muerren:false, alpin:false,
-    towns:false, drama:true, classic:false
-  },
-  zermatt: { five:true, gorner:true },
-  lakegeneva: {
-    lavaux:false, classic:false, famous:false,
-    classicBern:false, classicGeneva:false, classicLausanne:false,
-    famousTolo:false, famousVevey:false, famousMontreux:false
-  }
-};
-
-function setMode(mode){
-  document.getElementById("modeRecommendBtn").classList.remove("active");
-  document.getElementById("modeManualBtn").classList.remove("active");
-  document.getElementById("recommendSection").style.display = "none";
-  document.getElementById("manualSection").style.display = "none";
-  if(mode==="recommend"){
-    document.getElementById("modeRecommendBtn").classList.add("active");
-    document.getElementById("recommendSection").style.display = "block";
-  } else {
-    document.getElementById("modeManualBtn").classList.add("active");
-    document.getElementById("manualSection").style.display = "block";
-  }
+function trekPlan(o){
+ const A=place(o.entry),B=place(o.exit),N=o.days-1;const ok=c=>o.countries.includes(c);
+ const rc=k=>byId[TREK_REG[k].hub];const corr=k=>km(A,rc(k))+km(rc(k),B);
+ // 주 트레킹 지역 선택 (돌로미티 vs 샤모니, 체르마트는 보조)
+ const mains=[];if(ok("IT"))mains.push("dolo");if(ok("FR"))mains.push("chx");if(!mains.length&&ok("CH"))mains.push("zmt");if(!mains.length)return null;
+ const doloCorr=()=>Math.min(corr("dw"),corr("de"));
+ mains.sort((p,q)=>(p==="dolo"?doloCorr():corr(p))-(q==="dolo"?doloCorr():corr(q)));
+ const main=mains[0];let regs=[];// [{k,n}]
+ const addDolo=(n)=>{const eastward=km(B,rc("de"))<km(B,rc("dw"))-30||km(A,rc("de"))<km(A,rc("dw"))-30;if(n>=7||(n>=6&&eastward)){regs.push({k:"dw",n:Math.floor(n/2)},{k:"de",n:Math.ceil(n/2)})}else regs.push({k:km(A,rc("dw"))+0<km(A,rc("de"))?"dw":"de",n})};
+ if(main==="dolo"){let rest=N,sec=null;
+  if(N>=12&&(ok("FR")||ok("CH"))){sec=ok("CH")?"zmt":"chx";if(ok("FR")&&ok("CH")&&corr("chx")<corr("zmt"))sec="chx";}
+  const sn=sec?Math.min(TREK_REG[sec].cap,Math.max(TREK_REG[sec].min,N-9)):0;addDolo(N-sn);if(sec)regs.push({k:sec,n:sn});}
+ else if(main==="chx"){let z=(N>=8&&ok("CH"))?3:0;let d=(N>=12&&ok("IT"))?5:0;let c=N-z-d;
+  if(c>6&&z){const m=Math.min(c-6,1);z+=m;c-=m}
+  regs.push({k:"chx",n:c});if(z)regs.push({k:"zmt",n:z});if(d)addDolo(d);}
+ else regs.push({k:"zmt",n:N});
+ // 끝 도시가 멀면(약 4시간+) 긴 일정에선 가는 길에 지역 추가
+ const hrs=(p,q)=>km(p,q)*1.35/70;
+ {const o1=orderRoute(regs.map(r=>Object.assign({},rc(r.k),{_k:r.k})),A,B);const last=o1[o1.length-1];
+  if(N>=10&&hrs(last,B)>4){const cand=Object.keys(TREK_REG).filter(k=>!regs.find(r=>r.k===k)&&ok(TREK_REG[k].c)&&!(k==="dw"&&regs.find(r=>r.k==="de"))&&!(k==="de"&&regs.find(r=>r.k==="dw"))).sort((p,q)=>km(rc(p),B)-km(rc(q),B));
+   if(cand.length&&hrs(rc(cand[0]),B)<hrs(last,B)-1.5){regs.sort((p,q)=>q.n-p.n);const take=Math.min(4,regs[0].n-TREK_REG[regs[0].k].min);if(take>=3){regs[0].n-=take;regs.push({k:cand[0],n:take});}}}}
+ // 14일 미만 트레킹에 샤모니+돌로미티가 함께면 체르마트 제외, 돌로미티 4~5박 확보
+ let zNote=null;const isD=k=>k==="dw"||k==="de";const doloN=()=>regs.filter(r=>isD(r.k)).reduce((s,r)=>s+r.n,0);
+ if(o.days<14&&regs.some(r=>r.k==="chx")&&regs.some(r=>isD(r.k))){const z=regs.find(r=>r.k==="zmt");if(z){regs=regs.filter(r=>r!==z);zNote="체르마트는 이번 일정에서 빼고 샤모니·돌로미티에 집중했어요 (16일 이상이면 추가 추천).";const dr=regs.find(r=>isD(r.k));const c=regs.find(r=>r.k==="chx");const toD=Math.max(0,5-doloN());const mv=Math.min(z.n,toD);dr.n+=mv;c.n+=z.n-mv;}}
+ // 순서: 시작→끝 최단
+ const nodes=regs.map(r=>Object.assign({},rc(r.k),{_k:r.k}));
+ const ord=orderRoute(nodes,A,B).map(nd=>regs.find(r=>r.k===nd._k));
+ // 거점 간 이동이 약 4.5시간을 넘으면 경유 도시 1박 삽입 (서쪽→돌로미티는 인스브루크·브레너 경유 우선)
+ const STOPS={innsbruck:{n:"인스브루크",lat:47.2692,lng:11.4041,day:"구시가 황금 지붕·호프부르크 산책, 노르트케테 케이블카 전망"},
+  chur:{n:"쿠어",lat:46.8508,lng:9.532,day:"스위스에서 가장 오래된 도시로 꼽히는 구시가 산책 (안데르마트·오버알프 고개 경유 경치 좋은 길)"},
+  stmoritz:{n:"생모리츠",lat:46.4908,lng:9.8355,day:"엥가딘 호숫가 산책"},bolzano:{n:"볼차노",lat:46.4983,lng:11.3548,day:"남티롤 구시가와 외치 박물관"},
+  lucerne:{n:"루체른",lat:47.0502,lng:8.3093,day:"카펠교와 호숫가 구시가"},interlaken:{n:"인터라켄",lat:46.6863,lng:7.8632,day:"호숫가 산책"},verona:{n:"베로나",lat:45.4384,lng:10.9916,day:"아레나와 구시가"},aosta:{n:"아오스타",lat:45.7372,lng:7.3201,day:"로마 유적 구시가"}};
+ for(const k in STOPS)STOPS[k].id=k;
+ let items=ord.map(r=>({r}));const ptOf=it=>it.stop||rc(it.r.k);const LIM=4.5;
+ const minN=k=>k==="zmt"?2:k==="chx"?3:TREK_REG[k].min;const dTot=()=>items.filter(i=>i.r&&isD(i.r.k)).reduce((s,i)=>s+i.r.n,0);
+ const spare=()=>{const c=items.filter(i=>i.r&&!isD(i.r.k)&&i.r.n>minN(i.r.k)).sort((a,b)=>b.r.n-a.r.n);if(c[0])return c[0];if(dTot()>4){const dd=items.filter(i=>i.r&&isD(i.r.k)&&i.r.n>3).sort((a,b)=>b.r.n-a.r.n);return dd[0]}return null};
+ for(let guard=0;guard<4;guard++){let fixed=false;
+  for(let i=0;i<items.length-1;i++){const p=ptOf(items[i]),q=ptOf(items[i+1]);if(hrs(p,q)<=LIM)continue;
+   const sp=spare();if(!sp)break;const used=new Set(items.filter(x=>x.stop).map(x=>x.stop.id));
+   const toDolo=items[i+1].r&&["dw","de"].includes(items[i+1].r.k)&&p.lng<10.8;
+   if(toDolo&&!used.has("innsbruck")){// 스위스 → 인스브루크 → 브레너 → 돌로미티 서부
+    const inn=STOPS.innsbruck;const chain=hrs(p,inn)>LIM&&!used.has("chur")?[STOPS.chur,inn]:[inn];
+    const need=chain.length;let got=[];for(let z=0;z<need;z++){const s2=spare();if(!s2)break;s2.r.n--;got.push(s2)}
+    if(got.length===need){const tgt=items[i+1].r;if(tgt.k==="de"&&!items.find(x=>x.r&&x.r.k==="dw")){tgt.k="dw";}
+     let innN=1;if(N>=13){const s3=spare();if(s3){s3.r.n--;innN=2}}items.splice(i+1,0,...chain.map(s=>({stop:s,n:s.id==="innsbruck"?innN:1})));fixed=true;break;}else got.forEach(g=>g.r.n++);}
+   let best=null,bv=Infinity;for(const s of Object.values(STOPS)){if(used.has(s.id))continue;const d1=hrs(p,s),d2=hrs(s,q);if(km(p,s)+km(s,q)>1.45*km(p,q))continue;let v=Math.max(d1,d2);if(toDolo&&s.id==="innsbruck")v-=2;if(v<bv){bv=v;best=s}}
+   if(!best)continue;sp.r.n--;const n=(N>=13&&best.id==="innsbruck"&&spare())?2:1;if(n===2)spare().r.n--;
+   items.splice(i+1,0,{stop:best,n});fixed=true;break;}
+  if(!fixed)break;}
+ // 돌로미티는 최소 4박
+ {const di=items.filter(i=>i.r&&isD(i.r.k));if(di.length){let need=4-dTot();while(need>0){const c=items.filter(i=>i.r&&!isD(i.r.k)&&i.r.n>minN(i.r.k)).sort((a,b)=>b.r.n-a.r.n)[0];if(!c)break;c.r.n--;di[0].r.n++;need--;}}}
+ // 왕복 등 마지막 귀환이 멀면 귀환 경유 1박 (여유 있을 때)
+ {const lastIt=items[items.length-1];const lp=lastIt.r?rc(lastIt.r.k):lastIt.stop;if(hrs(lp,B)>LIM){const used=new Set(items.filter(x=>x.stop).map(x=>x.stop.id));let best=null,bv=Infinity;for(const s of Object.values(STOPS)){if(used.has(s.id))continue;if(km(lp,s)+km(s,B)>1.45*km(lp,B))continue;const v=Math.max(hrs(lp,s),hrs(s,B));if(v<bv){bv=v;best=s}}
+  const sp=spare();if(best&&sp&&bv<hrs(lp,B)-1){sp.r.n--;items.push({stop:best,n:1,ret:true});}}}
+ // 이동일 3일 연속 금지: 1박짜리가 연달아 두 개면 두 번째를 2박으로
+ for(let g2=0;g2<4;g2++){let ch=false;for(let i=0;i<items.length-1;i++){if(items[i].n===1&&items[i+1].n===1||(items[i].r&&items[i].r.n===1&&items[i+1].stop&&items[i+1].n===1)){const tgt=items[i+1].stop?items[i+1]:items[i];const sp=spare();if(!sp)break;sp.r.n--;if(tgt.stop)tgt.n++;else tgt.r.n++;ch=true;break;}}if(!ch)break;}
+ // 돌로미티 거점은 동선 기준으로 선택 (큰 이름 고정 X)
+ const BASE={};items.forEach((it,ii)=>{if(!it.r||!TREK_REG[it.r.k].bases)return;const pp=ii?ptOf(items[ii-1]):A,nn=items[ii+1]?ptOf(items[ii+1]):B;
+  const both=items.some(x=>x.r&&x.r.k==="dw")&&items.some(x=>x.r&&x.r.k==="de");
+  let best=null,bv=Infinity;TREK_REG[it.r.k].bases.forEach((id,bi)=>{const b=DOLO_BASES[id];const fromSW=pp.lng<11.45&&pp.lat<46.6;const southW=(id==="arabba"||(id==="canazei"&&!fromSW));const v=km(pp,b)+km(b,nn)+bi*4+(southW?(it.r.n>=5?10:60):0)-(id==="canazei"&&fromSW?20:0);if(v<bv){bv=v;best=b}});BASE[it.r.k]=Object.assign({},byId[TREK_REG[it.r.k].hub],best);});
+ const rcb=k=>BASE[k]||rc(k);
+ enUsed.clear();const days=[],usedT={},usedR={};let prev=A;
+ // 끝 도시가 볼거리 많은 도시면 마지막 약한 휴식일 대신 하루 일찍 이동해 도시 데이
+ const endKey=(o.exit||"").replace(/^[gd]:/,"");const lastI=items[items.length-1];let cityDay=false;
+ if(CITYDAY[endKey]&&lastI&&lastI.r&&lastI.r.n>=3&&o.days>=8){lastI.r.n--;cityDay=true;}
+ const label={T:"🥾 트레킹 데이",R:"☕ 휴식·근교 나들이",M:"🚗 이동일"};
+ items.forEach((it,ii)=>{if(it.stop){const s=it.stop;const h=hrs(prev,s);
+   days.push({hub:s,title:`${prev.n||prev.name} → ${s.n} (경유)`,body:`이동 ${travel(prev,s)}. 긴 이동을 나눠 가는 경유지. 저녁엔 ${s.day}.`,tag:label.M,kind:"M"});
+   for(let j=1;j<it.n;j++)days.push({hub:s,title:`${s.n} 도시 휴식`,body:`☕ 트레킹 없이 쉬어 가는 날: ${s.day}.${s.id==="innsbruck"?" 숙박객 웰컴 카드로 대중교통 혜택이 있는지 숙소에 확인.":""}`,tag:label.R,kind:"R"});
+   prev=s;return;}
+  const r=it.r;const R=TREK_REG[r.k],x=rcb(r.k);const crossing=r.k==="de"&&items[ii-1]&&items[ii-1].r&&items[ii-1].r.k==="dw";const t=travel(prev,x)||"근거리";const far=km(prev,x)>250;
+  days.push({hub:x,title:`${prev.name||prev.n} → ${x.n}`,body:`${far?"긴 이동일 · ":""}이동 ${t}. 도착 후 숙소 주변 가볍게 산책하며 컨디션 조절.${x.id==="chamonix"&&prev.id==="geneva"?" 🚠 제네바에서 차로 약 1시간 (추정).":""}`,tag:label.M,kind:"M"});
+  if(!crossing)days[days.length-1].body+=enrouteStop(prev,x);
+  if(crossing){const L=R.treks[1];days[days.length-1].title+=" (팔차레고 고개 경유)";days[days.length-1].body+=` 가는 길에 🥾 ${L[0]}${hikeBadge(L[0])} 들르기 — ${L[2]}. 오후 늦게 숙소 도착.`;}
+  const k=r.n-1;const nextReg=items[ii+1];const next=nextReg?(nextReg.r?rcb(nextReg.r.k):ptOf(nextReg)):B;
+  usedT[r.k]=usedT[r.k]||0;
+  const tl=crossing?R.treks.filter((_,i)=>i!==1):R.treks;const pickT=()=>{const tr=tl[usedT[r.k]%tl.length];usedT[r.k]++;return tr};
+  const hard=tr=>/힘듦/.test(tr[1]);
+  let seq=[];for(let i=0;i<k;i++)seq.push(i%2===0?pickT():"R");
+  // 마지막이 트레킹이면: 힘든 트레킹이면 휴식으로, 보통 이하는 다음날 이동(가벼운 이동일 = 회복) 허용
+  if(k>=2&&seq[seq.length-1]!=="R"&&hard(seq[seq.length-1])){const usedNames=seq.filter(s=>s!=="R").map(s=>s[0]);const alt=tl.find(tr=>!hard(tr)&&!usedNames.includes(tr[0]));if(alt)seq[seq.length-1]=alt;else{usedT[r.k]--;seq[seq.length-1]="R";}}
+  const usedRest=new Set();let ri=0;const nR=seq.filter(s=>s==="R").length;
+  const pickR=()=>{const tpos=nR>1?ri/(nR-1):(nextReg?1:0);ri++;const from=prev;
+   let best=null,bs=Infinity;for(const o of R.rest){if(usedRest.has(o[0])||[...enUsed].some(n=>o[0].startsWith(n)))continue;const p={lat:o[1],lng:o[2]};if(km(p,x)<2&&R.rest.length>2)continue;const s=(1-tpos)*km(p,from)+tpos*km(p,next)+km(p,x)*0.8-(o[4]?25:0);if(s<bs){bs=s;best=o}}
+   if(!best)best=R.rest[0];usedRest.add(best[0]);return best};
+  seq.forEach((s,idx)=>{if(s!=="R"){days.push({hub:x,title:`${s[0].replace(/^⭐ /,"")}`,body:`${s[0]}${hikeBadge(s[0])} · 난이도 ${s[1]} — ${s[2]}. 여러 포인트를 묶은 긴 하루, 날씨 좋은 날로 바꿔 배치하세요.${idx===seq.length-1?" 내일은 이동일 (가벼운 이동으로 회복).":""}`,tag:label.T,kind:"T"})}
+   else{const o=pickR();days.push({hub:x,title:o[0],body:`${o[0]}${o[4]?' <span class=badge>정영님 추천</span>':""} — ${o[3]}. 어제 트레킹 후 회복하는 날, 늦잠·카페·짧은 나들이로 가볍게.`,tag:label.R,kind:"R"})}});
+  prev=x;});
+ const far=km(prev,B)>250;
+ if(cityDay){const opts=CITYDAY[endKey];days.push({hub:null,title:`${prev.n} → ${B.name}`,body:`이동 ${travel(prev,B)}.${enrouteStop(prev,B)} 하루 일찍 도시로 이동해 마지막 날을 여유 있게.`,tag:label.M,kind:"M"});
+  const shopHi=endKey==="venice"&&(o.mix==="city"||o.mode==="drive");const sd=endKey==="venice"?shoppingDay(o):"";
+  days.push({hub:null,title:`${B.name} ${shopHi?"쇼핑 데이":"도시 데이"} → 여행 마무리`,body:(shopHi?`<div class=hi>⭐ 추천: ${sd}</div>`:"")+`☕ 산에서 내려와 도시에서 보내는 마지막 날. 골라서: ${opts.map(x=>"· "+x).join(" ")}${sd&&!shopHi?"<div class=tip>"+sd+"</div>":""} 일정 후 다음 여정으로.`,tag:shopHi?"🛍️ 쇼핑 데이":"🏙️ 도시 데이",kind:"C"});prev=B;}
+ else days.push({hub:null,title:km(prev,B)<15?`${B.name}에서 여행 마무리`:`${prev.n} → ${B.name} (여행 마무리)`,body:`${far?"긴 이동일 · ":""}이동 ${travel(prev,B)||"근거리"}.${km(prev,B)>=60?enrouteStop(prev,B):""}`,tag:label.M,kind:"M"});
+ let endWarn=null;if(hrs(prev,B)>4){const MAJ=["geneva","milan","zurich","munich","venice","innsbruck","salzburg","vienna"];const sug=Object.entries(GATES).filter(([id])=>MAJ.includes(id)).map(([id,g])=>({key:"g:"+id,name:g[0],lat:g[2],lng:g[3]})).filter(g=>g.key!==o.exit).sort((p,q)=>km(prev,p)-km(prev,q)).slice(0,3);endWarn={from:prev.n,to:B.name,h:Math.round(hrs(prev,B)*2)/2,sug};}
+ return {zNote,ord:items.map(it=>it.stop?{x:Object.assign({c:"",r:"경유",d:it.stop.day,s:[],hk:[],h:[]},it.stop),n:it.n,region:it.stop.n+" (경유)"}:{x:rcb(it.r.k),n:it.r.n,region:TREK_REG[it.r.k].name+" · "+rcb(it.r.k).n}),days,A,B,sats:[],trek:true,endWarn};
 }
 
-function renderStyleGrid(containerId, current, setter){
-  const wrap = document.getElementById(containerId);
-  wrap.innerHTML = "";
-  styleOptions.forEach(opt=>{
-    const div = document.createElement("div");
-    div.className = "choice" + (current===opt.key ? " active" : "");
-    div.innerHTML = `<strong>${opt.label}</strong><small>${opt.desc}</small>`;
-    div.onclick = ()=>setter(opt.key);
-    wrap.appendChild(div);
-  });
+// ---------- 쇼핑하며 쉬는 하루 (웹에서 확인한 아울렛·쇼핑 명소만) ----------
+const OUTLETS=[
+ {id:"moncler",n:"몽클레어 빌리지 (트레바셀레게)",lat:45.5941,lng:12.0344,area:"베네치아 근교 (파도바주)",acc:"차로 가는 게 편함. 방문 전 영업시간 확인",fav:1},
+ {id:"noventa",n:"노벤타 디 피아베 디자이너 아울렛",lat:45.6563,lng:12.5258,area:"베네치아 근교",acc:"베네치아 피아찰레 로마·메스트레역·공항에서 ATVO 직행 버스 (약 1.5시간)"},
+ {id:"serravalle",near:["milan"],n:"세라발레 디자이너 아울렛",lat:44.7258,lng:8.8606,area:"밀라노 남쪽 (세라발레 스크리비아)",acc:"밀라노 중앙역 등에서 셔틀버스 약 90분, 차로 약 1시간"},
+ {id:"quadrilatero",n:"밀라노 콰드릴라테로 (몬테나폴레오네 거리 일대)",lat:45.4686,lng:9.1956,area:"밀라노 시내",acc:"지하철 몬테나폴레오네·산 바빌라역"},
+ {id:"franciacorta",n:"프란차코르타 디자이너 빌리지",lat:45.598,lng:10.108,area:"브레시아 근교 (밀라노–베로나·가르다 호수 사이)",acc:"A4 고속도로 브레시아 오베스트 출구, 차로 가는 게 편함"},
+ {id:"foxtown",near:["milan"],n:"폭스타운 (멘드리시오)",lat:45.8749,lng:8.9796,area:"스위스 티치노, 코모·루가노 근처",acc:"A2 고속도로 멘드리시오 출구, 기차역과 연결"},
+ {id:"landquart",near:["zurich"],n:"란트크바르트 패션 아울렛",lat:46.9678,lng:9.5546,area:"스위스 쿠어 근처",acc:"란트크바르트역 바로 옆 (취리히에서 기차 약 1시간)"},
+ {id:"ingolstadt",near:["munich"],n:"잉골슈타트 빌리지",lat:48.7686,lng:11.4718,area:"뮌헨 북쪽",acc:"뮌헨 카를스플라츠·BMW 벨트에서 쇼핑 익스프레스 버스 (월~토, 예약)"},
+ {id:"salzburgdo",n:"디자이너 아울렛 잘츠부르크",lat:47.7919,lng:12.9892,area:"잘츠부르크 공항 옆 (발스)",acc:"시내에서 버스 2·10번 약 15분. 일요일·공휴일 휴무"},
+ {id:"brenner",n:"브레너 아울렛",lat:47.0027,lng:11.5058,area:"브레너 고개 (인스브루크–볼차노 사이)",acc:"A22 브레너 출구, 브레너역에서 도보 약 5분"},
+ {id:"metzingen",n:"아웃렛시티 메칭엔 (도시 전체가 아울렛)",lat:48.5366,lng:9.2847,area:"슈투트가르트 남쪽 약 30km",acc:"슈투트가르트에서 기차 30~40분, 메칭엔역에서 도보 몇 분. 일요일 휴무",near:["stuttgart"]},
+ {id:"thevillage",n:"더 빌리지 (빌퐁텐)",lat:45.6136,lng:5.1505,area:"리옹 근교 (제네바에서 차로 약 1시간 30분)",acc:"차로 가는 게 편함"}];
+const CITYSHOP={zurich:"반호프슈트라세 (취리히 중앙역~호숫가 쇼핑 거리)",geneva:"론 거리(Rue du Rhône) 일대",munich:"막시밀리안 거리·카우핑거 거리",basel:"프라이에 슈트라세 일대",innsbruck:"마리아 테레지아 거리",salzburg:"게트라이데 거리",vienna:"케른트너 거리·그라벤",stuttgart:"쾨니히 거리",lyon:"레퓌블리크 거리"};
+const SHOP_MAXKM=60;// 직선 60km ≈ 차로 약 1시간 이내
+function nearOK(p,ot){if(km(p,ot)<=SHOP_MAXKM)return true;return (ot.near||[]).some(g=>GATES[g]&&km(p,{lat:GATES[g][2],lng:GATES[g][3]})<15);}
+function applyAlsace(r,o){const d=r.days.find(d=>d.hub&&d.hub.r==="알자스");if(!d)return;const mo=o.month||0;if(mo===9||mo===10)d.body+=`<div class=hi>🍇 가을 알자스 추천: 와인가도(Route des Vins d'Alsace) 단풍 포도밭 + 수확 축제. 2026년 예: 에기스하임 햇와인 축제 9/26~27·10/3~4, 바르 수확 축제 10/2~4 (매년 10월 첫 일요일 무렵, 꽃수레 퍼레이드), 몰스하임 포도 축제 10/9~11. 날짜는 해마다 바뀌니 출발 전 확인.</div>`;if(mo===11||mo===12)d.body+=`<div class=hi>🎄 크리스마스 마켓 시즌 강력 추천: 콜마르 2026.11.23~12.29 (미식 마켓·관람차·라프 광장은 2027.1.3까지), 스트라스부르 2026.11.27~12.24. 12/24 이후엔 콜마르만 열려요. 마켓 기간 콜마르 구시가는 차량 통제 → 외곽 주차.</div>`;}
+const SHOP_TIPS=["평일 오전에 가면 덜 붐벼요","택스프리(부가세 환급) 서류는 매장에서 받고 출국 시 절차 확인","중간에 카페에서 쉬엄쉬엄 — 걷는 양을 줄이기","차가 있으면 아울렛 두 곳도 하루에 가능"];
+function applyShopping(r,o){
+ if(!o.shop)return;const B=r.B||place(o.exit);
+ const loc=d=>d.hub&&d.hub.lat!=null?d.hub:(d.kind==="C"?B:null);
+ const cands=r.days.map((d,i)=>({d,i,p:loc(d)})).filter(c=>c.p&&(c.d.kind==="R"||c.d.kind==="C"||c.d.tag==="관광"||/휴식/.test(c.d.tag||"")));
+ let best=null,bv=Infinity,bo=null;
+ for(const c of cands)for(const ot of OUTLETS){if(!nearOK(c.p,ot))continue;const v=km(c.p,ot)-(c.d.kind==="C"?30:0)-(ot.fav?15:0);if(v<bv){bv=v;best=c;bo=ot}}
+ const tipsBox=`<div class=tipsbox>💡 쇼핑 팁: ${SHOP_TIPS.map(t=>"· "+t).join(" ")}</div>`;
+ if(best){const d=best.d,p=best.p;
+  const venice=bo.id==="moncler"||bo.id==="noventa";
+  const main=venice&&typeof shoppingDay==="function"?shoppingDay(o):`🛍️ ${bo.n}${bo.fav?' <span class=badge>정영님 추천</span>':""} — ${bo.area}. ${bo.acc}. (${p.n||p.name||""}에서 ${travel(p,bo)||"근거리"})`;
+  d.title=`🛍️ 쇼핑하며 쉬는 하루: ${venice?"몽클레어 빌리지 + 노벤타":bo.n}`;d.tag="🛍️ 쇼핑 데이";
+  d.body=`<div class=hi>${main}</div>`+tipsBox+(d.kind==="C"?`<div class=mut>시간이 남으면: ${(CITYDAY.venice||[]).slice(0,2).join(" / ")}</div>`:"");d.shop=true;return;}
+ // 휴식일 근처에 없으면: 이동일에 지나가는 아울렛
+ for(let i=1;i<r.days.length;i++){const d=r.days[i];if(d.kind!=="M"&&d.tag!=="이동")continue;const q=loc(d)||B,pp=loc(r.days[i-1])||r.A;if(!q||!pp)continue;
+  for(const ot of OUTLETS){if(km(pp,ot)+km(ot,q)-km(pp,q)<20){d.body+=`<div class=hi>🛍️ 가는 길에 ${ot.n} 들러 쇼핑하며 쉬어 가기 — ${ot.acc}.</div>`+tipsBox;d.shop=true;return;}}}
+ const gid=Object.keys(CITYSHOP).find(g=>GATES[g]&&B&&km(B,{lat:GATES[g][2],lng:GATES[g][3]})<15);const L=r.days[r.days.length-1];
+ if(gid){L.body+=`<div class=hi>🛍️ 1시간 이내에 확인된 아울렛이 없어서, 마지막 날 ${GATES[gid][0]} 시내 쇼핑으로 쉬어 가요: ${CITYSHOP[gid]}.</div>`+tipsBox;L.shop=true;}
+ else L.body+=`<div class=mut>🛍️ 이번 루트 1시간 이내엔 확인된 아울렛이 없어요. 끝 도시 시내 쇼핑을 추천해요.</div>`;
 }
 
-function routeLine(labels){
-  let html = '<div class="route-line">';
-  labels.forEach((v,i)=>{
-    html += `<span class="pill">${v}</span>`;
-    if(i<labels.length-1) html += '<span class="arrow">→</span>';
-  });
-  html += '</div>';
-  return html;
-}
+// ---------- 월별 시즌 규칙 ----------
+const MONTHS={1:"1월 · 겨울(스키)",2:"2월 · 겨울(스키)",3:"3월 · 늦겨울(스키)",4:"4월 · 봄(산 위는 아직 눈)",5:"5월 · 봄(고지대 눈 남음)",6:"6월 · 초여름(중순부터 트레킹)",7:"7월 · 여름",8:"8월 · 여름",9:"9월 · 가을(트레킹·와인 축제)",10:"10월 · 가을(초·중순까지 트레킹)",11:"11월 · 늦가을(리프트 정비기)",12:"12월 · 겨울(크리스마스 마켓·스키)"};
+function seasonOf(m){return m>=6&&m<=9?"su":(m===4||m===5||m===10||m===11)?"sh":"wi";}
+function trekOK(m){return m>=6&&m<=10;}
+// 트레킹별 운영 기간 (2026 공식 발표 기준, 매년 조금씩 바뀜) [이름 패턴, 시작 M.D, 끝 M.D, 메모]
+const HIKE_WIN=[[/5개 호수|5-Seen|파이브 레이크/,[6,13],[10,4],"블라우헤르트 곤돌라 6/13~10/4 (2026). 보통 6월 말부터 눈 없이 걷기 좋음"],
+ [/락블랑|Lac Blanc/,[6,20],[9,13],"플레제르 곤돌라 6/20~9/13 (2026). 6월엔 눈밭이 남아 있을 수 있음 — 출발 전 상황 확인"],
+ [/그랑 발콩|Grand Balcon/,[6,20],[9,13],"6월 말 전엔 고도 높은 길에 눈이 남는 경우가 많음"],
+ [/세체다|Seceda/,[5,22],[11,2],"세체다 케이블카 5/22~11/2 (2026). 능선 걷기는 6월 중순~10월이 무난"],
+ [/라가주오이|Lagazuoi/,[6,6],[10,18],"라가주오이 케이블카 6/6~10/18 (2026)"],
+ [/포르도이|Pordoi/,[5,14],[11,1],"사스 포르도이 케이블카 여름 5/14~11/1 (2026). 피츠 보에 쪽 길은 6월 중순 전엔 눈"],
+ [/트레 치메|Tre Cime/,[5,23],[10,31],"아우론초 유료도로 5/23~10월 말 (날씨에 따라 통제). 산장은 6월 중순부터 문 엶"]];
+const md=(m,d)=>m*100+d;
+function hikeWin(name){return HIKE_WIN.find(h=>h[0].test(name));}
+function applySeason(r,o){const m=o.month||new Date().getMonth()+1,notes=[];
+ if(o.trekBlocked)notes.push(`<div class=warn>❄️ ${m}월엔 알프스 고지대 트레일 대부분이 눈에 덮여 있어 일반 여행자가 트레킹하기 어려워요 (체르마트 5개 호수길·샤모니 락블랑 등은 보통 6월 중순~10월 초·중순). 그래서 트레킹 일정 대신 <b>케이블카 전망대 · 겨울에도 여는 명소 · 도시</b> 위주로 짰어요. 트레킹을 원하면 6월 중순~10월 초로 시기를 바꿔보세요.</div>`);
+ if(m===11)notes.push(`<div class=warn>🍂 11월은 시즌 사이 정비 기간이라 많은 리프트가 닫혀요 (예: 세체다 11/2, 사스 포르도이 11/1까지, 라가주오이 10/18 종료. 융프라우요흐는 연중 운행이지만 11월엔 구간별 정비로 경로가 바뀜 — jungfrau.ch 운행 정보 확인). 그래서 11월엔 두 가지 루트를 추천해요.${r.novAlt?` <span class=sugbtn data-nov="${r.novAlt}">${r.novAlt==="b"?"🇮🇹 이탈리아 루트 보기":"🇨🇭 스위스·알자스 루트 보기"}</span>`:""}</div>`);
+ if(m>=12||m<=3)notes.push(`<div class=mut>⛷️ 겨울 알프스는 스키 시즌이에요. 융프라우요흐(연중 운행)·피르스트 같은 겨울에도 여는 전망대, 돌로미티 스키 마을, 도시 위주로 추천해요. 사스 포르도이 케이블카는 겨울에도 운행 (12/22~4/7 예정).</div>`);
+ for(const d of r.days){const nm=(d.title||"")+" "+(d.body||"");if(!/트레킹/.test(d.tag||"")&&!/🥾/.test(d.title||""))continue;const w=hikeWin(nm);
+  if(!trekOK(m)){d.title=`🚡 전망 케이블카 · 마을 산책 (${d.hub?d.hub.n:""})`;d.tag="전망";d.body=`이 시기엔 트레일이 눈에 덮여 있어 걷기 대신 운행 중인 케이블카 전망대와 마을 산책으로 바꿨어요. 운행 여부는 출발 전 확인.`;continue;}
+  if(w){const s=md(...w[1]),e=md(...w[2]),a=md(m,1),b=md(m,31);if(b<s||a>e){d.title=`🚡 ${d.hub?d.hub.n:""} 전망·마을 산책 (트레일 시즌 아님)`;d.tag="전망";d.body=`${w[3]}. ${m}월엔 운영 기간 밖이라 다른 전망 코스로 대체하세요.`;}
+   else if(a<s||b>e)d.body+=`<div class=warn>📅 ${w[3]}. ${m}월엔 날짜에 따라 걷기 어려울 수 있어요.</div>`;}}
+ r.notes=notes;}
+// ---------- 11월 템플릿 ----------
+const NOV_A=[["colmar",2],["montreux",2],["interlaken",3],["lucerne",1]];
+const NOV_B=[["bolzano",2],["venice",2],["florence",3],["bologna",1]];
+function novPlan(o){const A=place(o.entry),B=place(o.exit);const it=p=>p&&(p.c==="IT"||/IT/.test(p.country||"")||(p.lat<46.3&&p.lng>8.5));
+ let t=o.novT||((it(A)||it(B))?"b":"a");const alt=t==="a"?"b":"a";
+ let base=(t==="a"?NOV_A:NOV_B).map(x=>[...x]);const N=o.days-1;
+ const drop=t==="a"?["lucerne","montreux"]:["bologna","bolzano"];
+ while(base.reduce((s,b)=>s+b[1],0)>N){const big=base.filter(b=>b[1]>1).sort((a,b)=>b[1]-a[1])[0];if(big&&base.length*1.5<base.reduce((s,b)=>s+b[1],0))big[1]--;else{const d=drop.shift();if(!d){if(big)big[1]--;else break}else base=base.filter(b=>b[0]!==d)}}
+ let i=0;const grow=t==="a"?["interlaken","colmar","montreux"]:["florence","venice","bolzano"];while(base.reduce((s,b)=>s+b[1],0)<N){const g=base.find(b=>b[0]===grow[i%3]);if(g)g[1]++;i++;if(i>50)break;}
+ const hubs=base.map(([id,n])=>({x:byId[id],n}));const ids=hubs.map(h=>h.x.id);
+ const satIds=t==="a"?["strasbourg","winevillages","bern","thunlake"]:["siena","sangimignano","lucca"];
+ const sats=satIds.filter(id=>byId[id]&&ids.includes(byId[id].parent)).map(id=>({x:byId[id],sc:5,mode:"day"}));
+ const r=plan({...o,approach:""},hubs,sats);r.novAlt=alt;r.novT=t;return r;}
 
-function buildMapSection(labels, extra=[]){
-  return buildMap(labels, extra);
-}
+let M="rec";const S={month:new Date().getMonth()+1,novT:"",shop:false,mix:"balance",style:"scenic",season:"su",countries:["CH","FR","IT","AT"],pace:"normal",budget:"any",mode:"train"};const SEL={};
+const STYLE={scenic:"🚞 풍경·열차",hike:"🥾 가벼운 하이킹",trek:"⛰️ 본격 트레킹 (샤모니+돌로미티)",relax:"🌿 여유·휴양",comfort:"🛋️ 편안한 여행 (회복·부모님 동반)"};
+function chips(id,opts,key,multi){const el=$("#"+id);el.innerHTML="";for(const[k,v]of Object.entries(opts)){const b=document.createElement("span");b.className="chip"+((multi?S[key].includes(k):S[key]===k)?" on":"");b.textContent=v;b.onclick=()=>{if(multi){S[key]=S[key].includes(k)?S[key].filter(x=>x!==k):[...S[key],k];if(!S[key].length)S[key]=[k]}else S[key]=k;chips(id,opts,key,multi)};el.appendChild(b)}}
+function curSeason(){const m=new Date().getMonth()+1;return m>=6&&m<=9?"su":(m===5||m===10)?"sh":"wi";}
+const CN={...COUNTRIES,...COUNTRIES_ALL};
+function cityOptions(sel,filter){const cur=sel.value;sel.innerHTML="";const f=(filter||"").trim().toLowerCase();
+ for(const k of Object.keys(CUSTOM)){sel.add(new Option("📍 "+CUSTOM[k].name+" (직접 입력)",k))}
+ for(const[c,cn]of Object.entries(CN)){const g=document.createElement("optgroup");g.label=cn;
+  for(const[id,v]of Object.entries(GATES))if(v[1]===c&&(!f||v[0].toLowerCase().includes(f)||id.includes(f)))g.appendChild(new Option(v[0]+(v[4]?" ✈️":""),"g:"+id));
+  for(const x of D)if(x.c===c&&!GATES[x.id]&&x.t!=="sat"&&(!f||x.n.toLowerCase().includes(f)||x.id.includes(f)))g.appendChild(new Option(x.n,"d:"+x.id));
+  if(g.children.length)sel.appendChild(g)}
+ if([...sel.options].some(o=>o.value===cur))sel.value=cur;}
+async function geocode(which){const q=$("#c_"+which).value.trim();if(!q)return;const btn=document.querySelector(`button[data-for=${which}]`);btn.textContent="…";
+ try{const r=await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=ko&q="+encodeURIComponent(q));const j=await r.json();
+  if(!j.length)throw 0;const k="c:"+q.toLowerCase();CUSTOM[k]={key:k,id:k,name:q,c:"",lat:+j[0].lat,lng:+j[0].lon,ap:false};
+  ["entry","exit"].forEach(w=>cityOptions($("#"+w),$("#q_"+w).value));$("#"+which).value=k;}
+ catch(e){alert("위치를 찾지 못했어요. 목록에서 가까운 도시를 골라주세요.")}finally{btn.textContent="찾기"}}
+function init(){["entry","exit"].forEach(w=>{cityOptions($("#"+w));$("#q_"+w).oninput=e=>cityOptions($("#"+w),e.target.value)});
+ $("#entry").value="g:zurich";$("#exit").value="g:zurich";
+ $("#same").onchange=e=>$("#endBox").style.display=e.target.checked?"none":"";
+ document.querySelectorAll(".custom button").forEach(b=>b.onclick=()=>geocode(b.dataset.for));
+ for(let d=5;d<=16;d++)$("#days").add(new Option(d+"일 ("+(d-1)+"박)",d));$("#days").value=9;
+ for(const[k,v]of Object.entries(APPROACH))$("#approach").add(new Option(v.name,k));
+ chips("mix",{city:"🏛️ 도시 많이",balance:"⚖️ 반반",nature:"🏔️ 자연 위주"},"mix");styleChips();$("#month").innerHTML=Object.entries(MONTHS).map(([k,v])=>`<option value=${k}${+k===S.month?" selected":""}>${v}</option>`).join("");$("#month").onchange=e=>{S.month=+e.target.value;S.season=seasonOf(S.month);S.novT="";styleChips();};$("#shop").onchange=e=>S.shop=e.target.checked;
+ chips("countries",COUNTRIES,"countries",1);chips("pace",{normal:"보통",slow:"느긋하게 (거점 적게)"},"pace");chips("budget",{any:"상관없음",save:"💰 절약 (저렴한 거점 우선)"},"budget");chips("mode",MODE,"mode");
+ document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{M=t.dataset.m;document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x===t));$("#recOnly").style.display=M==="rec"?"":"none";$("#manOnly").style.display=M==="man"?"":"none"});
+ renderPicks();$("#go").onclick=run;$("#preset").onclick=()=>{const o={...S,days:+$("#days").value,style:"comfort"};o.shop=S.shop;const r=presetLoop(o);applyAlsace(r,o);applyShopping(r,o);render(r,o);drawMap(r);};initMap();}
+const badge=x=>FAV.has(x.id)?'<span class=badge>정영님 추천</span>':"";
+function tips(x){return (BLOG[x.id]||[]).map(([t,id])=>`<div class=tip>📝 ${t} <a href="${BLOG_BASE+id}" target=_blank rel=noopener>블로그 후기 ↗</a></div>`).join("")}
+function renderPicks(){let h="";for(const[c,cn]of Object.entries(COUNTRIES)){h+=`<div class=cty>${cn}</div>`;
+ for(const x of D.filter(x=>x.c===c&&x.t!=="sat")){const subs=D.filter(s=>s.parent===x.id);
+  h+=`<div class=basegrp>${pickRow(x)}${subs.length?`<details><summary>▸ 근교 ${subs.length}곳 (당일치기·1박2일)</summary>${subs.map(pickRow).join("")}</details>`:""}</div>`}}
+ $("#picks").innerHTML=h;
+ $("#picks").querySelectorAll("input").forEach(i=>i.onchange=()=>{const id=i.dataset.id,sel=$("#m_"+id);if(i.checked)SEL[id]=sel?sel.value:1;else delete SEL[id]});
+ $("#picks").querySelectorAll("select").forEach(s=>s.onchange=()=>{const id=s.id.slice(2);if(SEL[id])SEL[id]=s.value});}
+function pickRow(x){const sat=x.t==="sat";let opt="";if(sat){opt=`<select id="m_${x.id}"><option value="day">당일치기</option>${x.mode==="both"?'<option value="1n2d">1박2일</option>':""}<option value="hub">따로 숙박</option></select>`}
+ return `<label class="pick${sat?" sat":""}"><input type=checkbox data-id="${x.id}"><span style="flex:1"><b>${x.n}</b>${badge(x)} <span class=mut>${won(x)}</span></span>${opt}</label>`}
+let map,layer;function initMap(){if(typeof L==="undefined"){$("#map").innerHTML='<p class=mut>지도를 불러오지 못했어요 (인터넷 연결 확인).</p>';return}map=L.map("map").setView([46.5,10],6);L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"© OpenStreetMap"}).addTo(map);layer=L.layerGroup().addTo(map)}
+function drawMap(r){if(!map)return;layer.clearLayers();const pts=[[r.A.lat,r.A.lng],...r.ord.map(h=>[h.x.lat,h.x.lng]),[r.B.lat,r.B.lng]];
+ L.polyline(pts,{color:"#1f6feb",weight:4}).addTo(layer);
+ L.marker([r.A.lat,r.A.lng]).bindPopup("🚩 "+r.A.name).addTo(layer);L.marker([r.B.lat,r.B.lng]).bindPopup("🏁 "+r.B.name).addTo(layer);
+ r.ord.forEach((h,i)=>L.marker([h.x.lat,h.x.lng],{icon:L.divIcon({className:"",html:`<div style="background:#0f1f33;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-weight:800;border:2px solid #fff">${i+1}</div>`})}).bindPopup(`<b>${h.x.n}</b> ${h.n}박`).addTo(layer));
+ const sh=new Set(r.days.filter(d=>d.sat).map(d=>d.sat.id));
+ for(const id of sh){const s=byId[id],p=byId[s.parent];L.polyline([[p.lat,p.lng],[s.lat,s.lng]],{color:"#0ea5a4",dashArray:"6 6"}).addTo(layer);L.circleMarker([s.lat,s.lng],{radius:7,color:"#0ea5a4",fillOpacity:.8}).bindPopup(s.n).addTo(layer)}
+ map.fitBounds(L.latLngBounds(pts.concat([...sh].map(id=>[byId[id].lat,byId[id].lng]))),{padding:[30,30]})}
+function styleChips(){chips("style",STYLE,"style");if(!trekOK(S.month))document.querySelectorAll("#style .chip").forEach(c=>{if(/하이킹|트레킹/.test(c.textContent)){c.classList.add("dis");c.title="이 시기엔 눈 때문에 트레킹이 어려워요";}});const n=$("#trekNote");if(n)n.style.display=!trekOK(S.month)?"":"none";}
+function run(){const o={...S,entry:$("#entry").value,exit:$("#same").checked?$("#entry").value:$("#exit").value,days:+$("#days").value,approach:M==="rec"?$("#approach").value:""};
+ if(M==="man"){if(!Object.keys(SEL).length){$("#out").innerHTML='<div class=warn>가고 싶은 곳을 하나 이상 선택해주세요.</div>';return}o.countries=Object.keys(COUNTRIES)}
+ o.season=seasonOf(o.month);if(!trekOK(o.month)&&(o.style==="hike"||o.style==="trek")){o.style="scenic";o.trekBlocked=true;}
+ const r=M==="rec"?recommend(o):manual(o,SEL);applySeason(r,o);applyAlsace(r,o);applyShopping(r,o);render(r,o);if(r.notes&&r.notes.length)$("#out").insertAdjacentHTML("afterbegin",r.notes.join(""));document.querySelectorAll("[data-nov]").forEach(b=>b.onclick=()=>{S.novT=b.dataset.nov;run();});drawMap(r)}
+function render(r,o){const cs=[...new Set(r.ord.map(h=>h.x.c))].map(c=>COUNTRIES[c]).join(" ");
+ let h=(r.zNote?`<p class=mut>ℹ️ ${r.zNote}</p>`:"")+(r.endWarn?`<div class=warn>⚠️ 마지막 거점 ${r.endWarn.from} → ${r.endWarn.to}까지 약 ${r.endWarn.h}시간 (추정)으로 마지막 날 이동이 길어요. 끝 도시를 바꿔보세요: ${r.endWarn.sug.map(s=>`<button class=sugbtn data-k="${s.key}">${s.name}로 끝 도시 바꾸기</button>`).join(" ")}</div>`:"")+(r.preset?`<div class=warn style="background:#ecfeff;border-color:#0ea5a4">🚗 취리히 왕복 오스트리아·독일 편안한 루프: 렌터카로 보덴호 → 뮌헨 → 잘츠부르크 → 잘츠카머구트 → 인스브루크를 도는 평지 위주 편안한 루프. 기간에 맞춰 자동으로 늘이고 줄여요.</div>`:"")+(r.warn?`<div class=warn>${r.warn}</div>`:"");
+ h+=`<h3 style="margin:0">${o.days}일 알프스 루트 <span class=mut>${cs}</span></h3>`;
+ h+=`<div class=route><span class=pill>🚩 ${r.A.name}</span>`+r.ord.map(x=>`→ <span class=pill>${x.x.n} ${x.n}박</span>`).join("")+` → <span class=pill>🏁 ${r.B.name}</span></div>`;
+ if(r.approach)h+=`<p class=mut>🇮🇹 ${r.approach.name}: ${r.approach.note}</p>`;
+ h+=r.days.map((d,i)=>`<details class=dd><summary><div class=dn>DAY<br>${i+1}</div><div><b>${d.title}</b><span class=tag>${d.tag}</span></div></summary><div class=body>${d.body}${d.sat?tips(d.sat):""}</div></details>`).join("");
+ h+=`<h3 style="margin-top:20px">거점 자세히 보기</h3>`+r.ord.map(({x})=>`<details class=dd><summary><div><b>${x.n}</b>${badge(x)} <span class=mut>${x.r} · 물가 ${won(x)}</span></div></summary><div class=body>${x.d}<div class=mut>추천 시기: ${x.s.map(s=>SE[s]).join(", ")}</div>${x.hk.length?`<ul class=hk>${x.hk.map(k=>`<li><b>${k[0]}</b>${hikeBadge(k[0])} · ${k[1]}${k[2]?" — "+k[2]:""}</li>`).join("")}</ul>`:""}${(()=>{const subs=D.filter(s=>s.parent===x.id);return subs.length?`<div class=mut>근교: ${subs.map(s=>s.n+(s.mode==="both"?" (당일/1박2일)":" (당일)")).join(", ")}</div>`:""})()}${ACC[x.id]?`<div class=mut>♿ 이동 편의: ${ACC[x.id]}</div>`:""}${CARDS[x.id]?`<div class=mut>🎫 ${CARDS[x.id]}</div>`:""}${tips(x)}</div></details>`).join("");
+ h+=`<p class=mut style="margin-top:14px">📒 더 읽을거리: ${BLOG_GENERAL.map(([t,id])=>`<a href="${BLOG_BASE+id}" target=_blank rel=noopener>${t}</a>`).join(" · ")}</p>`;
+ $("#out").innerHTML=h;document.querySelectorAll(".sugbtn").forEach(b=>b.onclick=()=>{$("#same").checked=false;$("#endBox").style.display="";$("#exit").value=b.dataset.k;run();});}
+S.season=seasonOf(S.month);init();
 
-function buildMap(labels, extra=[]){
-  const routePoints = labels.map(l => mapNodes[l]).filter(Boolean);
-  let svg = `<svg viewBox="0 0 780 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="스위스 루트 지도"><rect x="0" y="0" width="780" height="320" fill="#ffffff"/>`;
-  svg += `<defs>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#94a3b8" flood-opacity="0.22"/></filter>
-    <linearGradient id="mapFill" x1="0" x2="1" y1="0" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#eef2ff"/></linearGradient>
-    <linearGradient id="routeStroke" x1="0" x2="1" y1="0" y2="0"><stop offset="0%" stop-color="#64748b"/><stop offset="100%" stop-color="#111827"/></linearGradient>
-  </defs>`;
-  svg += `<path d="M48 168 C65 120,103 92,148 94 C185 56,246 44,308 60 C354 36,432 42,502 68 C560 48,625 56,664 98 C688 126,692 168,658 193 C648 225,612 239,570 242 C540 266,487 267,446 252 C406 277,350 276,305 251 C259 270,205 266,168 236 C128 247,84 225,58 195 C48 188,42 178,48 168 Z" fill="#eef4ff" stroke="#475569" stroke-width="4.5" filter="url(#shadow)"/>`;
-  svg += `<path d="M48 168 C65 120,103 92,148 94 C185 56,246 44,308 60 C354 36,432 42,502 68 C560 48,625 56,664 98 C688 126,692 168,658 193 C648 225,612 239,570 242 C540 266,487 267,446 252 C406 277,350 276,305 251 C259 270,205 266,168 236 C128 247,84 225,58 195 C48 188,42 178,48 168 Z" fill="none" stroke="#64748b" stroke-width="2.2" opacity="0.9"/><ellipse cx="122" cy="178" rx="78" ry="45" fill="#dbeafe" stroke="#93c5fd" stroke-width="1.4"/><text x="122" y="182" text-anchor="middle" font-size="13" font-weight="700" fill="#1e3a8a">레만호</text><text x="235" y="117" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">SWITZERLAND</text><text x="76" y="132" text-anchor="middle" font-size="12" font-weight="700" fill="#9a3412">FRANCE</text>`;
-  if(routePoints.length>1){
-    const path = routePoints.map((p,i)=>`${i===0?"M":"L"} ${p.x} ${p.y}`).join(" ");
-    svg += `<path d="${path}" fill="none" stroke="url(#routeStroke)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`;
-  }
-  extra.forEach(name=>{
-    const n = mapNodes[name];
-    if(!n) return;
-    svg += `<circle cx="${n.x}" cy="${n.y}" r="6" fill="#fff" stroke="#64748b" stroke-width="2"/><text x="${n.x}" y="${n.y-11}" text-anchor="middle" font-size="11" font-weight="700" fill="#334155">${name}</text>`;
-  });
-  labels.forEach((name, idx) => {
-    const n = mapNodes[name];
-    if(!n) return;
-    const airport = idx===0 || idx===labels.length-1;
-    const fill = airport ? "#111827" : "#ffffff";
-    const text = airport ? "#ffffff" : "#111827";
-    svg += `<circle cx="${n.x}" cy="${n.y}" r="11" fill="${fill}" stroke="#111827" stroke-width="2.2"/>`;
-    svg += `<circle cx="${n.x}" cy="${n.y}" r="4" fill="${airport ? "#ffffff" : "#111827"}"/>`;
-    svg += `<rect x="${n.x-15}" y="${n.y-34}" width="30" height="20" rx="11" ry="11" fill="${fill}" stroke="#111827" stroke-width="1.3"/>`;
-    svg += `<text x="${n.x}" y="${n.y-20}" text-anchor="middle" font-size="11" font-weight="700" fill="${text}">${idx+1}</text>`;
-    svg += `<text x="${n.x}" y="${n.y+30}" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">${name}</text>`;
-  });
-  svg += `</svg>`;
-  return `<div class="map-wrap">${svg}</div><div class="caption">출국 도시에 가까운 도시를 마지막에 두는 방식으로 동선을 조정했습니다.</div>`;
-}
-
-function renderLinkGroups(groups){
-  let html = '<div class="blog-links">';
-  groups.forEach(([group, items])=>{
-    html += `<div class="link-group"><strong>${group}</strong><div class="linkchips">`;
-    items.forEach(item=> html += `<a class="link-chip" href="${item.url}" target="_blank" rel="noopener noreferrer">${item.title}</a>`);
-    html += `</div></div>`;
-  });
-  html += '</div>';
-  return html;
-}
-
-// ---------- Recommend mode ----------
-
-function applyStylePriority(style, routeCities, days, outCity){
-  const primaryMap = {
-    "풍경": "레만호",
-    "하이킹": "체르마트",
-    "도시": outCity === "취리히" ? "루체른" : "제네바",
-    "균형": "인터라켄"
-  };
-  const primary = primaryMap[style];
-  let route = [...routeCities];
-
-  if (primary && !route.includes(primary)) {
-    if (outCity === "취리히" && primary === "루체른") route.push(primary);
-    else if (outCity === "제네바" && (primary === "제네바" || primary === "레만호")) route.push(primary);
-    else route.unshift(primary);
-  }
-
-  route = route.filter((v, i, a) => a.indexOf(v) === i);
-  const roughCap = days <= 5 ? 2 : days <= 7 ? 4 : 5;
-  if (route.length > roughCap) route = route.slice(0, roughCap);
-  return route;
-}
-
-function getStyleMessage(style){
-  const messages = {
-    "풍경": "라보 와이너리와 레만호 풍경을 중심으로 일정이 구성되도록 우선순위를 조정했습니다.",
-    "하이킹": "체르마트 5대호수 트레킹과 알프스 하이킹이 중심이 되도록 우선순위를 조정했습니다.",
-    "도시": "도시와 문화 포인트를 중심으로 루체른 또는 제네바 쪽 비중을 높이도록 조정했습니다.",
-    "균형": "인터라켄을 중심으로 풍경, 하이킹, 도시 일정을 균형 있게 배치하도록 조정했습니다."
-  };
-  return messages[style] || "";
-}
-
-function getRecommendedStops(days, inCity, outCity, style){
-  let routeCities = [];
-  if(outCity==="취리히"){
-    if(days===5) routeCities = ["체르마트","인터라켄"];
-    else if(days===6) routeCities = ["체르마트","인터라켄","루체른"];
-    else if(days===7) routeCities = ["제네바","체르마트","인터라켄","루체른"];
-    else if(days===8) routeCities = ["레만호","체르마트","인터라켄","루체른"];
-    else if(days===9 || days===10) routeCities = ["레만호","체르마트","인터라켄","루체른"];
-  } else {
-    if(days===5) routeCities = ["인터라켄","체르마트"];
-    else if(days===6) routeCities = ["인터라켄","체르마트","제네바"];
-    else if(days===7) routeCities = ["루체른","인터라켄","체르마트","제네바"];
-    else if(days===8) routeCities = ["루체른","인터라켄","체르마트","레만호","제네바"];
-    else if(days===9 || days===10) routeCities = ["루체른","인터라켄","체르마트","레만호","제네바"];
-  }
-  routeCities = applyStylePriority(style, routeCities, days, outCity);
-  return routeCities;
-}
-function buildRecDays(days, outCity, style, routeCities){
-  const p = [];
-  const has = (name) => routeCities.includes(name);
-
-  const regionPlans = {
-    "루체른": [],
-    "인터라켄": [],
-    "체르마트": [],
-    "레만호": [],
-    "제네바": []
-  };
-
-  // Build candidate activities by region
-  if(style === "풍경"){
-    regionPlans["레만호"].push("레만호 / 라보 와이너리와 몽트뢰, 브베 중심 풍경 일정");
-    regionPlans["인터라켄"].push("시그리스빌 · 이젤발트 · 룽게른 같은 소도시 풍경");
-    regionPlans["인터라켄"].push("그린델발트 / 피르스트 또는 하더쿨룸");
-    regionPlans["루체른"].push("루체른 호수 유람선과 시내 산책");
-    regionPlans["체르마트"].push("고르너그라트 전망대와 마터호른 조망");
-  } else if(style === "하이킹"){
-    regionPlans["체르마트"].push("체르마트 이동 또는 마을 산책");
-    regionPlans["체르마트"].push("고르너그라트");
-    regionPlans["체르마트"].push("5대호수 트레킹");
-    regionPlans["인터라켄"].push("그린델발트 / 피르스트");
-    regionPlans["인터라켄"].push("멘리헨 또는 뮤렌 하이킹");
-    regionPlans["루체른"].push("리기산 하이킹");
-    regionPlans["레만호"].push("라보 와이너리 하이킹");
-  } else if(style === "도시"){
-    regionPlans["루체른"].push("루체른 구시가지와 카펠교");
-    regionPlans["인터라켄"].push("베른 또는 인터라켄 근교 도시 산책");
-    regionPlans["레만호"].push("로잔 또는 몽트뢰 도시 일정");
-    regionPlans["제네바"].push("제네바 시내와 호수 주변");
-    regionPlans["체르마트"].push("체르마트 마을 위주로 짧게");
-  } else {
-    regionPlans["루체른"].push("루체른 시내 + 호수 유람선");
-    regionPlans["인터라켄"].push("융프라우요흐");
-    regionPlans["인터라켄"].push("그린델발트 / 피르스트");
-    regionPlans["인터라켄"].push("인터라켄 소도시 하루");
-    regionPlans["체르마트"].push("체르마트 이동");
-    regionPlans["체르마트"].push("고르너그라트");
-    regionPlans["체르마트"].push("5대호수 트레킹");
-    regionPlans["레만호"].push("라보 와이너리");
-    regionPlans["제네바"].push("제네바 시내");
-  }
-
-  // Allocate days in route order instead of fixed order by style
-  const regionDayTargets = {};
-  const baseTargets = {
-    "루체른": 1,
-    "인터라켄": style === "균형" ? 2 : 1,
-    "체르마트": style === "하이킹" ? 2 : 1,
-    "레만호": style === "풍경" ? 2 : 1,
-    "제네바": 1
-  };
-
-  let totalAssigned = 0;
-  routeCities.forEach(region => {
-    const n = Math.max(1, Math.min((regionPlans[region] || []).length || 1, baseTargets[region] || 1));
-    regionDayTargets[region] = n;
-    totalAssigned += n;
-  });
-
-  // Add extra days prioritizing route order and style anchors, without breaking route order
-  const extraPriority = [...routeCities];
-  while(totalAssigned < days){
-    let added = false;
-    for (const region of extraPriority){
-      const maxForRegion = Math.max((regionPlans[region] || []).length, 2);
-      if((regionDayTargets[region] || 0) < maxForRegion && totalAssigned < days){
-        regionDayTargets[region] += 1;
-        totalAssigned += 1;
-        added = true;
-      }
-    }
-    if(!added) break;
-  }
-
-  // Emit days in route order
-  routeCities.forEach(region => {
-    if(!has(region)) return;
-    const pool = regionPlans[region].length ? regionPlans[region] : [`${region} 일정`];
-    const count = regionDayTargets[region] || 0;
-    for(let i=0;i<count;i++){
-      p.push(pool[i % pool.length]);
-    }
-  });
-
-  // Final city/day handling
-  if(outCity === "취리히"){
-    if(p.length < days) p.push("루체른 또는 취리히 근교에서 마무리");
-  } else {
-    if(p.length < days) p.push("제네바 시내 또는 레만호권에서 마무리");
-  }
-
-  const fallback = [
-    "인터라켄 소도시 추가",
-    "라보 와이너리 하이킹 추가",
-    "리기산 하이킹 추가",
-    "베른 또는 로잔 반나절 추가"
-  ];
-  let idx = 0;
-  while(p.length < days){
-    p.push(fallback[idx % fallback.length]);
-    idx += 1;
-  }
-  return p.slice(0, days);
-}
-function buildRecommend(){
-  const days = parseInt(document.getElementById("recDays").value,10);
-  const inCity = document.getElementById("recInCity").value;
-  const outCity = document.getElementById("recOutCity").value;
-  const style = recStyle;
-  const routeCities = getRecommendedStops(days, inCity, outCity, style);
-  const labels = [inCity, ...routeCities.filter(v => v!==inCity && v!==outCity), outCity];
-  const plan = buildRecDays(days, outCity, style, routeCities);
-  const links = [];
-  if(labels.includes("루체른")) links.push(["루체른", linkGroups["루체른"]]);
-  if(labels.includes("인터라켄")) links.push(["인터라켄 / 소도시", linkGroups["인터라켄 / 소도시"]]);
-  if(labels.includes("체르마트")) links.push(["체르마트", linkGroups["체르마트"]]);
-  if(labels.includes("레만호") || labels.includes("제네바")) links.push(["레만호", linkGroups["레만호"]]);
-
-  let html = `<div class="summary"><strong>한 줄 요약</strong><br>출국 도시에 가까운 도시를 마지막에 배치하도록 추천 순서를 조정했습니다. 출국 전날 이동 부담을 줄이기 위한 구성입니다.</div>`;
-  html += `<div class="notice"><strong>${style} 여행 우선순위 반영</strong><br>${getStyleMessage(style)}</div>`;
-  if(days>=9){
-    html += `<div class="notice"><strong>추가 추천</strong><br>일정이 여유로운 편입니다. 인터라켄 소도시(베른, 힐터핑겐, 스피치)나 라보 하이킹, 로잔 또는 제네바 시내 일정을 더 깊게 넣으면 더 자연스러운 9~10일 일정이 됩니다.</div>`;
-  }
-  html += routeLine(labels);
-  html += buildMapSection(labels);
-  html += `<div class="card"><h3>추천 일자별 일정</h3><div class="day-list">`;
-  plan.forEach((v,i)=> html += `<div class="day"><strong>DAY ${i+1}</strong><div class="muted">${v}</div></div>`);
-  html += `</div></div>`;
-  html += `<div class="two-col"><div class="card"><h3>추천 핵심 루트</h3><p>${labels.join(" → ")}</p><p class="muted">${outCity==="취리히" ? "마지막은 취리히와 가까운 루체른/취리히권으로 정리되는 방향" : "마지막은 제네바와 가까운 레만호/제네바권으로 정리되는 방향"}입니다.</p></div><div class="card"><h3>이 루트에서 실제 여행기 보기</h3>${renderLinkGroups(links)}</div></div>`;
-  document.getElementById("recommendResult").innerHTML = html;
-}
-
-// ---------- Manual mode ----------
-function subCheck(id, checked, label, desc=""){ return `<label class="check"><input type="checkbox" id="${id}" ${checked ? "checked":""}><div><strong>${label}</strong>${desc?`<small>${desc}</small>`:""}</div></label>`; }
-function box(id, key, title, desc, inner=""){
-  return `<div class="region-head"><input type="checkbox" id="${id}" ${state.regions[key] ? "checked":""}><div style="flex:1;"><strong>${title}</strong><small class="muted" style="display:block">${desc}</small></div></div>${state.regions[key] ? `<div class="sub-grid">${inner}</div>` : ""}`;
-}
-function bind(id, handler){ const el=document.getElementById(id); if(el) el.onchange = handler; }
-function renderManualPanels(){
-  document.getElementById("region-lucerne").innerHTML = box("reg-lucerne","lucerne","루체른","호수 유람선과 리기산을 묶기 좋은 지역",[
-    subCheck("lu-city", state.lucerne.city, "루체른 시내 관광"),
-    subCheck("lu-cruise", state.lucerne.cruise, "호수 유람선"),
-    subCheck("lu-rigi", state.lucerne.rigi, "리기산")
-  ].join(""));
-
-  let interInner = [
-    subCheck("in-jungfrau", state.interlaken.jungfrau, "융프라우요흐"),
-    subCheck("in-wengen", state.interlaken.wengen, "벵엔"),
-    subCheck("in-kleine", state.interlaken.kleine, "클라이네 샤이덱"),
-    subCheck("in-maennlichen", state.interlaken.maennlichen, "멘리헨"),
-    subCheck("in-first", state.interlaken.first, "그린델발트 피르스트"),
-    subCheck("in-harder", state.interlaken.harder, "하더쿨룸"),
-    subCheck("in-muerren", state.interlaken.muerren, "뮤렌"),
-    subCheck("in-alpin", state.interlaken.alpin, "알파인 가든"),
-    subCheck("in-towns", state.interlaken.towns, "인터라켄 주변 소도시")
-  ].join("");
-  if(state.regions.interlaken && state.interlaken.towns){
-    interInner += `<div class="sub-theme">
-      ${subCheck("in-drama", state.interlaken.drama, "드라마 / 영화 촬영지", "시그리스빌 · 이젤발트 · 룽게른")}
-      ${subCheck("in-classic", state.interlaken.classic, "전통 관광 도시 / 클래식 소도시", "베른 · 힐터핑겐 · 스피치")}
-    </div>`;
-  }
-  document.getElementById("region-interlaken").innerHTML = box("reg-interlaken","interlaken","인터라켄","알프스 명소와 주변 소도시가 많은 핵심 지역",interInner);
-
-  document.getElementById("region-zermatt").innerHTML = box("reg-zermatt","zermatt","체르마트","마터호른 조망과 트레킹을 위한 핵심 지역",[
-    subCheck("ze-five", state.zermatt.five, "5대호수 트레킹"),
-    subCheck("ze-gorner", state.zermatt.gorner, "고르너그라트")
-  ].join(""));
-
-  let lakeInner = [
-    subCheck("la-lavaux", state.lakegeneva.lavaux, "라보 와이너리"),
-    subCheck("la-classic", state.lakegeneva.classic, "전통 관광 도시"),
-    subCheck("la-famous", state.lakegeneva.famous, "유명 인물이 사랑한 장소")
-  ].join("");
-  if(state.regions.lakegeneva && state.lakegeneva.classic){
-    lakeInner += `<div class="sub-theme">
-      ${subCheck("la-c-bern", state.lakegeneva.classicBern, "베른")}
-      ${subCheck("la-c-geneva", state.lakegeneva.classicGeneva, "제네바")}
-      ${subCheck("la-c-lausanne", state.lakegeneva.classicLausanne, "로잔")}
-    </div>`;
-  }
-  if(state.regions.lakegeneva && state.lakegeneva.famous){
-    lakeInner += `<div class="sub-theme">
-      ${subCheck("la-f-tolo", state.lakegeneva.famousTolo, "Tolochenaz")}
-      ${subCheck("la-f-vevey", state.lakegeneva.famousVevey, "Vevey")}
-      ${subCheck("la-f-montreux", state.lakegeneva.famousMontreux, "Montreux")}
-    </div>`;
-  }
-  document.getElementById("region-lakegeneva").innerHTML = box("reg-lakegeneva","lakegeneva","레만호","와이너리, 전통 도시, 유명 인물 테마를 묶기 좋은 지역",lakeInner);
-
-  bind("reg-lucerne", e => { state.regions.lucerne=e.target.checked; renderManualPanels(); });
-  bind("reg-interlaken", e => { state.regions.interlaken=e.target.checked; renderManualPanels(); });
-  bind("reg-zermatt", e => { state.regions.zermatt=e.target.checked; renderManualPanels(); });
-  bind("reg-lakegeneva", e => { state.regions.lakegeneva=e.target.checked; renderManualPanels(); });
-
-  bind("lu-city", e => state.lucerne.city=e.target.checked);
-  bind("lu-cruise", e => state.lucerne.cruise=e.target.checked);
-  bind("lu-rigi", e => state.lucerne.rigi=e.target.checked);
-
-  bind("in-jungfrau", e => state.interlaken.jungfrau=e.target.checked);
-  bind("in-wengen", e => state.interlaken.wengen=e.target.checked);
-  bind("in-kleine", e => state.interlaken.kleine=e.target.checked);
-  bind("in-maennlichen", e => state.interlaken.maennlichen=e.target.checked);
-  bind("in-first", e => state.interlaken.first=e.target.checked);
-  bind("in-harder", e => state.interlaken.harder=e.target.checked);
-  bind("in-muerren", e => state.interlaken.muerren=e.target.checked);
-  bind("in-alpin", e => state.interlaken.alpin=e.target.checked);
-  bind("in-towns", e => { state.interlaken.towns=e.target.checked; renderManualPanels(); });
-  bind("in-drama", e => state.interlaken.drama=e.target.checked);
-  bind("in-classic", e => state.interlaken.classic=e.target.checked);
-
-  bind("ze-five", e => state.zermatt.five=e.target.checked);
-  bind("ze-gorner", e => state.zermatt.gorner=e.target.checked);
-
-  bind("la-lavaux", e => state.lakegeneva.lavaux=e.target.checked);
-  bind("la-classic", e => { state.lakegeneva.classic=e.target.checked; renderManualPanels(); });
-  bind("la-famous", e => { state.lakegeneva.famous=e.target.checked; renderManualPanels(); });
-  bind("la-c-bern", e => state.lakegeneva.classicBern=e.target.checked);
-  bind("la-c-geneva", e => state.lakegeneva.classicGeneva=e.target.checked);
-  bind("la-c-lausanne", e => state.lakegeneva.classicLausanne=e.target.checked);
-  bind("la-f-tolo", e => state.lakegeneva.famousTolo=e.target.checked);
-  bind("la-f-vevey", e => state.lakegeneva.famousVevey=e.target.checked);
-  bind("la-f-montreux", e => state.lakegeneva.famousMontreux=e.target.checked);
-}
-function selectedRegionsOrdered(start, end){
-  const names = [];
-  if(state.regions.lucerne) names.push("루체른");
-  if(state.regions.interlaken) names.push("인터라켄");
-  if(state.regions.zermatt) names.push("체르마트");
-  if(state.regions.lakegeneva) names.push("레만호");
-
-  // Outbound city has priority for the final region.
-  // 취리히 OUT: finish near 루체른/취리히 side, so start from the far side.
-  // 제네바 OUT: finish near 레만호/제네바 side.
-  if(end==="취리히"){
-    return ["레만호","체르마트","인터라켄","루체른"].filter(v=>names.includes(v));
-  }
-  return ["루체른","인터라켄","체르마트","레만호"].filter(v=>names.includes(v));
-}
-function regionNeededDays(){
-  const out={};
-  if(state.regions.lucerne){
-    let s=0; if(state.lucerne.city) s+=0.5; if(state.lucerne.cruise) s+=0.5; if(state.lucerne.rigi) s+=0.75;
-    out["루체른"]=Math.max(1, Math.ceil(s));
-  }
-  if(state.regions.interlaken){
-    let s=0; if(state.interlaken.jungfrau) s+=1; if(state.interlaken.wengen) s+=0.5; if(state.interlaken.kleine) s+=0.5;
-    if(state.interlaken.maennlichen) s+=0.5; if(state.interlaken.first) s+=1; if(state.interlaken.harder) s+=0.5;
-    if(state.interlaken.muerren) s+=0.75; if(state.interlaken.alpin) s+=0.5; if(state.interlaken.towns) s+=1;
-    out["인터라켄"]=Math.max(1, Math.ceil(s));
-  }
-  if(state.regions.zermatt){
-    let s=0; if(state.zermatt.gorner) s+=0.5; if(state.zermatt.five) s+=1;
-    out["체르마트"]=Math.max(1, Math.ceil(s));
-  }
-  if(state.regions.lakegeneva){
-    let s=0; if(state.lakegeneva.lavaux) s+=0.5; if(state.lakegeneva.classic) s+=1; if(state.lakegeneva.famous) s+=1;
-    out["레만호"]=Math.max(1, Math.ceil(s));
-  }
-  return out;
-}
-function getRemovalPriority(){ return ["루체른","레만호","체르마트","인터라켄"]; }
-function minimumDaysForOrdered(ordered){
-  const need = regionNeededDays();
-  return ordered.reduce((s,name)=> s+(need[name]||1), 0);
-}
-function autoTrimRegions(totalDays, ordered){
-  let current=[...ordered], removed=[], minDays=minimumDaysForOrdered(current), priority=getRemovalPriority();
-  while(current.length>1 && minDays>totalDays){
-    const cand = priority.find(name=>current.includes(name));
-    if(!cand) break;
-    current=current.filter(v=>v!==cand);
-    removed.push(cand);
-    minDays=minimumDaysForOrdered(current);
-  }
-  return {ordered:current, removed, minDays};
-}
-function fitDays(ordered, totalDays){
-  const need = regionNeededDays();
-  let plan = ordered.map(name=>({name, days: need[name]||1}));
-  let sum = plan.reduce((a,b)=>a+b.days,0);
-  if(sum<=totalDays){
-    let remain = totalDays-sum;
-    const priority = ["인터라켄","체르마트","레만호","루체른"];
-    while(remain>0){
-      for(const p of priority){
-        const t=plan.find(v=>v.name===p);
-        if(t && remain>0){ t.days += 1; remain -= 1; }
-      }
-    }
-    return plan;
-  }
-  while(sum>totalDays){
-    const reduceOrder=["루체른","레만호","체르마트","인터라켄"];
-    let changed=false;
-    for(const p of reduceOrder){
-      const t=plan.find(v=>v.name===p);
-      if(t && t.days>1 && sum>totalDays){ t.days -= 1; sum -= 1; changed=true; }
-    }
-    if(!changed) break;
-  }
-  return plan;
-}
-function getExtraManualPoints(){
-  const pts=[];
-  if(state.interlaken.towns && state.interlaken.drama) pts.push("시그리스빌","이젤발트","룽게른");
-  if(state.interlaken.towns && state.interlaken.classic) pts.push("베른","힐터핑겐","스피치");
-  if(state.lakegeneva.classic && state.lakegeneva.classicBern) pts.push("베른");
-  if(state.lakegeneva.classic && state.lakegeneva.classicGeneva) pts.push("제네바");
-  if(state.lakegeneva.classic && state.lakegeneva.classicLausanne) pts.push("로잔");
-  if(state.lakegeneva.famous && state.lakegeneva.famousTolo) pts.push("Tolochenaz");
-  if(state.lakegeneva.famous && state.lakegeneva.famousVevey) pts.push("Vevey");
-  if(state.lakegeneva.famous && state.lakegeneva.famousMontreux) pts.push("Montreux");
-  return [...new Set(pts)];
-}
-function regionDescription(name){
-  if(name==="루체른"){
-    let picks=[]; if(state.lucerne.city) picks.push("시내 관광"); if(state.lucerne.cruise) picks.push("호수 유람선"); if(state.lucerne.rigi) picks.push("리기산");
-    return `루체른에서는 ${picks.join(", ")}을(를) 묶는 구성이 기본입니다.`;
-  }
-  if(name==="인터라켄"){
-    let picks=[]; if(state.interlaken.jungfrau) picks.push("융프라우요흐"); if(state.interlaken.first) picks.push("그린델발트 피르스트");
-    if(state.interlaken.maennlichen) picks.push("멘리헨"); if(state.interlaken.muerren) picks.push("뮤렌");
-    if(state.interlaken.towns && state.interlaken.drama) picks.push("드라마 촬영지 코스"); if(state.interlaken.towns && state.interlaken.classic) picks.push("전통 소도시");
-    return `인터라켄에서는 ${picks.join(", ")} 중심으로 일정이 구성됩니다.`;
-  }
-  if(name==="체르마트"){
-    let picks=[]; if(state.zermatt.gorner) picks.push("고르너그라트"); if(state.zermatt.five) picks.push("5대호수 트레킹");
-    return `체르마트는 ${picks.join(", ")} 중심으로 보는 것이 가장 무난합니다.`;
-  }
-  if(name==="레만호"){
-    let picks=[]; if(state.lakegeneva.lavaux) picks.push("라보 와이너리"); if(state.lakegeneva.classic) picks.push("전통 관광 도시"); if(state.lakegeneva.famous) picks.push("유명 인물 테마");
-    return `레만호는 ${picks.join(", ")} 중심으로 일정이 구성됩니다.`;
-  }
-  return "";
-}
-function buildManualDayByDay(start, end, totalDays, ordered, plan){
-  const days=[]; let d=1;
-  for(const p of plan){
-    for(let i=0;i<p.days && d<=totalDays;i++){
-      let desc="";
-      if(p.name==="루체른"){
-        const pool=[]; if(state.lucerne.city) pool.push("루체른 구시가지와 카펠교를 천천히 둘러보는 날입니다."); if(state.lucerne.cruise) pool.push("루체른 호수 유람선을 중심으로 풍경을 즐기기 좋은 날입니다."); if(state.lucerne.rigi) pool.push("리기산 하이킹이나 산악열차를 중심으로 일정을 짜기 좋습니다."); if(!pool.length) pool.push("루체른의 호수와 시내를 여유롭게 보는 일정입니다."); desc=pool[i % pool.length];
-      } else if(p.name==="인터라켄"){
-        const pool=[]; if(state.interlaken.jungfrau) pool.push("융프라우요흐, 클라이네 샤이덱, 벵엔을 묶기 좋은 핵심 일정입니다."); if(state.interlaken.first) pool.push("그린델발트 피르스트와 라우터브루넨, 혹은 하더쿨룸을 묶기 좋은 날입니다."); if(state.interlaken.maennlichen) pool.push("멘리헨과 벵엔 방향의 하이킹을 넣기 좋은 날입니다."); if(state.interlaken.muerren) pool.push("뮤렌과 주변 산악 마을을 묶어 걷기 좋은 날입니다."); if(state.interlaken.alpin) pool.push("알파인 가든과 근교 산책 코스를 넣기 좋은 날입니다."); if(state.interlaken.towns && state.interlaken.drama) pool.push("시그리스빌, 이젤발트, 룽게른 같은 드라마 촬영지를 묶어 보기 좋은 날입니다."); if(state.interlaken.towns && state.interlaken.classic) pool.push("베른, 힐터핑겐, 스피치 같은 클래식 소도시 중 1~2곳을 넣기 좋은 날입니다."); if(!pool.length) pool.push("인터라켄과 근교 전망대를 중심으로 여유 있게 구성하는 날입니다."); desc=pool[i % pool.length];
-      } else if(p.name==="체르마트"){
-        const pool=[]; if(state.zermatt.gorner) pool.push("고르너그라트 전망대와 오후 하이킹을 넣기 좋은 날입니다."); if(state.zermatt.five) pool.push("5대호수 트레킹이나 수네가 방향 하이킹을 넣기 좋은 날입니다."); if(!pool.length) pool.push("체르마트 마을과 마터호른 조망 위주로 여유 있게 보내기 좋은 날입니다."); desc=pool[i % pool.length];
-      } else if(p.name==="레만호"){
-        const pool=[]; if(state.lakegeneva.famous) pool.push("Tolochenaz, Vevey, Montreux를 중심으로 유명 인물 테마 루트를 즐기기 좋은 날입니다."); if(state.lakegeneva.classic) pool.push("베른, 제네바, 로잔 중 동선에 맞는 도시를 넣어 전통적인 도시 여행을 하기 좋은 날입니다."); if(state.lakegeneva.lavaux) pool.push("라보 와이너리와 몽트뢰, 브베를 중심으로 호수 풍경을 즐기기 좋은 날입니다."); if(!pool.length) pool.push("레만호 주변 소도시를 가볍게 묶어보는 날입니다."); desc=pool[i % pool.length];
-      }
-      days.push({d, title:p.name, desc}); d++;
-    }
-  }
-  while(days.length<totalDays) days.push({d:days.length+1, title:"여유 일정", desc:"날씨에 따라 전망대나 소도시 일정 중 하나를 조정하는 예비일로 생각하면 좋습니다."});
-  return days.slice(0,totalDays);
-}
-function buildManual(){
-  const start = document.getElementById("manInCity").value;
-  const end = document.getElementById("manOutCity").value;
-  const totalDays = parseInt(document.getElementById("manDays").value,10);
-  const initialOrdered = selectedRegionsOrdered(start, end);
-  const trim = autoTrimRegions(totalDays, initialOrdered);
-  const ordered = trim.ordered;
-  const plan = fitDays(ordered, totalDays);
-  const labels = [start, ...ordered, end];
-  const extra = getExtraManualPoints();
-  let html = `<div class="summary"><strong>한 줄 요약</strong><br>${start} IN / ${end} OUT 기준 ${totalDays}일 일정입니다. 출국 도시를 기준으로 마지막이 공항과 가까운 지역이 되도록 조정하면 ${ordered.join(" → ")} 순서가 가장 무난합니다.</div>`;
-  const initialMinDays = minimumDaysForOrdered(initialOrdered);
-  if(trim.removed.length>0){
-    html += `<div class="notice"><strong>일정 현실성 체크</strong><br>현재 선택한 지역과 명소는 최소 <strong>${initialMinDays}일</strong> 정도가 필요합니다. ${totalDays}일 일정에 맞추기 위해 <strong>${trim.removed.join(", ")}</strong> 지역이 자동으로 제외되었습니다.</div>`;
-  }
-  html += routeLine(labels);
-  html += buildMapSection(labels, extra);
-  html += `<div class="two-col"><div class="card"><h3>지역별 배정</h3><div class="list">`;
-  plan.forEach(p=> html += `<div class="item"><div class="topline"><strong>${p.name}</strong><span class="badge">${p.days}일</span></div><div class="muted" style="margin-top:6px;">${regionDescription(p.name)}</div></div>`);
-  html += `</div></div><div class="card"><h3>예상 이동 시간</h3><div class="list">`;
-  for(let i=0;i<labels.length-1;i++){
-    const time = travelTimes[`${labels[i]}|${labels[i+1]}`] || "약 2시간";
-    html += `<div class="item"><div class="topline"><strong>${labels[i]} → ${labels[i+1]}</strong><span class="badge">${time}</span></div></div>`;
-  }
-  html += `</div></div></div>`;
-  const dayByDay = buildManualDayByDay(start, end, totalDays, ordered, plan);
-  html += `<div class="card"><h3>추천 일자별 루트</h3><div class="day-list">`;
-  dayByDay.forEach(v=> html += `<div class="day"><strong>DAY ${v.d} · ${v.title}</strong><div class="muted">${v.desc}</div></div>`);
-  html += `</div></div>`;
-  const groups=[]; if(ordered.includes("루체른")) groups.push(["루체른", linkGroups["루체른"]]); if(ordered.includes("인터라켄")) groups.push(["인터라켄 / 소도시", linkGroups["인터라켄 / 소도시"]]); if(ordered.includes("체르마트")) groups.push(["체르마트", linkGroups["체르마트"]]); if(ordered.includes("레만호")) groups.push(["레만호", linkGroups["레만호"]]);
-  html += `<div class="card"><h3>이 루트에서 실제 여행기 보기</h3>${renderLinkGroups(groups)}</div>`;
-  document.getElementById("manualResult").innerHTML = html;
-}
-
-// init
-function rerenderRecStyle(){ renderStyleGrid("recStyleGrid", recStyle, k=>{ recStyle=k; rerenderRecStyle(); }); }
-function rerenderManStyle(){ renderStyleGrid("manStyleGrid", manStyle, k=>{ manStyle=k; rerenderManStyle(); }); }
-rerenderRecStyle();
-rerenderManStyle();
-renderManualPanels();
-setMode('recommend');
-buildRecommend();
-buildManual();
-</script>
-</body>
-</html>
+</script></body></html>
