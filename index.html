@@ -59,6 +59,7 @@ details.dd .dn{flex:0 0 44px;height:44px;font-size:12px}details.dd .body{padding
  <label class="l">여행 시기 (월)</label><select id="month"></select>
  <label class="l">여행 스타일</label><div class="chips" id="style"></div><div id="trekNote" class="mut" style="display:none">❄️ 이 시기엔 고지대 트레일이 눈에 덮여 트레킹 스타일을 쓸 수 없어요 (보통 6월 중순~10월 초·중순 가능).</div>
  <label class="shoptoggle"><input type=checkbox id="shop"> 🛍️ 쇼핑하며 쉬는 하루 넣기</label>
+ <label class="shoptoggle" id="fraRetBox"><input type=checkbox id="fraRet"> 🚆 프랑크푸르트 왕복일 때 돌아가는 길: 취리히 → 슈투트가르트 → 메칭엔 아울렛(쇼핑) → 프랑크푸르트</label>
  <details class="adv"><summary>⚙️ 더 자세히 (나라·예산·이동수단)</summary>
  <label class="l">포함할 나라</label><div class="chips" id="countries"></div>
  <label class="l">예산</label><div class="chips" id="budget"></div>
@@ -91,8 +92,11 @@ const D=[
 {id:"sangimignano",n:"산지미냐노",c:"IT",r:"토스카나",lat:43.4677,lng:11.0436,t:"sat",parent:"florence",mode:"day",nt:0,s:["su","sh","wi"],st:["city","scenic"],d:"중세 탑들이 남은 언덕 마을 (유네스코). 시에나와 묶어 하루 코스로 많이 감.",h:["탑의 마을 구시가","젤라토"],hk:[]},
 {id:"lucca",n:"루카",c:"IT",r:"토스카나",lat:43.8429,lng:10.5027,t:"sat",parent:"florence",mode:"day",nt:0,s:["su","sh","wi"],st:["city","relax"],d:"성벽 위를 걷거나 자전거로 한 바퀴 도는 평지 소도시. 피렌체에서 기차 약 1~1.5시간.",h:["성벽 산책로","구이니지 탑"],hk:[]},
 {id:"colmar",n:"콜마르 (알자스)",c:"FR",r:"알자스",lat:48.0794,lng:7.3585,t:"hub",nt:2,s:["wi","su","sh"],st:["city","relax","scenic"],d:"반목조 컬러 하우스와 운하(쁘띠 베니스)의 동화 마을. 알자스 와인가도의 중심. 겨울엔 크리스마스 마켓으로 유명.",h:["쁘띠 베니스 운하 산책","구시가 메종 피스테르·운터린덴 미술관","겨울: 크리스마스 마켓 (2026년 11/23~12/29)"],hk:[["와인가도 마을 잇기 (리크위르↔리보빌레 포도밭 길)","쉬움","포도밭 사이 완만한 길, 눈 온 날엔 미끄럼 주의"]]},
-{id:"strasbourg",n:"스트라스부르",c:"FR",r:"알자스",lat:48.5734,lng:7.7521,t:"sat",parent:"colmar",mode:"day",nt:0,s:["wi","su","sh"],st:["city"],d:"대성당과 쁘띠 프랑스. '크리스마스의 수도' 마켓(2026년 11/27~12/24). 콜마르에서 기차 약 30분.",h:["노트르담 대성당","쁘띠 프랑스","겨울: 크리스마스 마켓"],hk:[]},
-{id:"winevillages",n:"와인가도 마을 (리크위르·리보빌레·에기스하임·카이저스베르크)",c:"FR",r:"알자스",lat:48.1667,lng:7.2981,t:"sat",parent:"colmar",mode:"day",nt:0,s:["wi","su","sh"],st:["scenic","relax"],d:"알자스 와인가도의 작은 중세 마을들. 차로 잇기 쉽고, 콜마르에서 버스도 있음.",h:["리크위르 성벽 마을","에기스하임 원형 골목","리보빌레","겨울: 마을마다 작은 크리스마스 마켓"],hk:[]},
+{id:"strasbourg",n:"스트라스부르",c:"FR",r:"알자스",lat:48.5734,lng:7.7521,t:"hub",nt:1,dayFrom:"colmar",s:["wi","su","sh"],st:["city"],d:"대성당과 쁘띠 프랑스의 알자스 중심 도시. '크리스마스의 수도' 마켓(2026년 11/27~12/24). 콜마르에서 기차 약 30분이라 당일치기도, 따로 숙박 거점으로도 좋아요.",h:["노트르담 대성당","쁘띠 프랑스 운하 골목","겨울: 크리스마스 마켓"],hk:[]},
+{id:"eguisheim",n:"에기스하임",c:"FR",r:"알자스",lat:48.0428,lng:7.3064,t:"sat",parent:"colmar",alt:"strasbourg",mode:"day",nt:0,s:["wi","su","sh"],st:["scenic","relax"],d:"성을 중심으로 골목이 동그랗게 감싸 도는 작은 와인 마을. 콜마르 남쪽으로 가까워 반나절에도 충분해요.",h:["원형 골목 따라 한 바퀴 걷기","마을 광장과 성 레옹 9세 예배당","가을: 햇와인 축제 · 겨울: 작은 크리스마스 마켓"],hk:[]},
+{id:"riquewihr",n:"리크위르",c:"FR",r:"알자스",lat:48.1667,lng:7.2981,t:"sat",parent:"colmar",alt:"strasbourg",mode:"day",nt:0,s:["wi","su","sh"],st:["scenic","relax"],d:"성벽 안에 반목조 집들이 고스란히 남은 포도밭 속 중세 마을. 와인가도에서 가장 사랑받는 곳 중 하나.",h:["돌더 탑과 성벽 골목","포도밭 산책로 (리보빌레 쪽으로 이어짐)","겨울: 크리스마스 마켓"],hk:[["리크위르↔리보빌레 포도밭 길","쉬움","완만한 포도밭 길, 눈 온 날엔 미끄럼 주의"]]},
+{id:"ribeauville",n:"리보빌레",c:"FR",r:"알자스",lat:48.1947,lng:7.3194,t:"sat",parent:"colmar",alt:"strasbourg",mode:"day",nt:0,s:["wi","su","sh"],st:["scenic","relax"],d:"언덕 위 세 개의 성 폐허가 내려다보는 와인 마을. 긴 중심 거리를 따라 천천히 걷기 좋아요.",h:["중심 거리와 정육점 탑(Tour des Bouchers)","생튈리히 성 폐허 산책 (언덕길)","겨울: 중세 콘셉트 크리스마스 마켓"],hk:[]},
+{id:"kaysersberg",n:"카이저스베르크",c:"FR",r:"알자스",lat:48.1389,lng:7.2636,t:"sat",parent:"colmar",alt:"strasbourg",mode:"day",nt:0,s:["wi","su","sh"],st:["scenic","relax","city"],d:"바이스 강을 건너는 요새 다리와 언덕 위 성탑이 있는 마을. 알베르트 슈바이처가 태어난 곳이에요.",h:["알베르트 슈바이처 생가 (Maison natale · Centre culturel Albert Schweitzer): 1875년 이곳에서 태어난 의사·사상가·오르가니스트 슈바이처의 생가를 작은 기념관으로 꾸민 곳. 생애와 아프리카 랑바레네 병원 이야기를 볼 수 있어요. 운영 기간·시간이 계절마다 달라(겨울엔 닫거나 단축) 방문 전 확인","바이스 강 요새 다리와 구시가","언덕 위 성탑 전망","겨울: 크리스마스 마켓"],hk:[]},
 {id:"freiburg",n:"프라이부르크 (흑림)",c:"DE",r:"흑림",lat:47.999,lng:7.8421,t:"hub",nt:1,s:["wi","su","sh"],st:["city","relax"],d:"흑림 입구의 대학 도시. 바젤과 콜마르 사이, 독일 쪽으로 넘어가는 연결 거점.",h:["프라이부르크 대성당과 뮌스터 광장","베힐레(구시가 작은 수로)","슐로스베르크 전망"],hk:[]},
 {id:"titisee",n:"티티제 (흑림 호수)",c:"DE",r:"흑림",lat:47.9034,lng:8.1557,t:"sat",parent:"freiburg",mode:"day",nt:0,s:["wi","su","sh"],st:["scenic","relax"],d:"흑림의 호수 마을. 프라이부르크에서 기차 약 40분, 뻐꾸기시계 가게들.",h:["티티제 호숫가 산책","흑림 케이크"],hk:[]},
 {id:"interlaken",n:"인터라켄 (융프라우)",c:"CH",r:"베르너 오버란트",lat:46.6863,lng:7.8632,t:"hub",nt:3,s:["su","sh","wi"],st:["scenic","hike","relax"],d:"한국 여행자의 스위스 1순위 거점. 융프라우요흐·그린델발트·라우터브루넨을 오가기 좋음.",h:["융프라우요흐","그린델발트 피르스트","라우터브루넨 계곡","툰·브리엔츠 호수"],hk:[["멘리헨–클라이네 샤이덱 파노라마 트레일","쉬움","약 1.5시간, 아이거·묀히·융프라우 조망"],["피르스트–바흐알프호수","쉬움","편도 약 1시간, 호수에 비친 설산"]]},
@@ -160,7 +164,7 @@ zermatt:[["고르너그라트·수네가 각각 하루씩","222003839918"],["마
 lucerne:[["2019 스위스 여행 첫날 루체른","222001517355"]],
 colmar:[["프랑스 알자스 3박 4일 여행기 : Day1 스트라스부르","224163700460"],["알자스 2일차 | 셀레스타 베이스캠프 → 콜마르, 눈 내린 동화 마을","224164204858"],["알자스 3일차 | 리보빌레 → 리퀘위르, 눈 덮인 와인가도","224170095099"],["알자스 여행 기념품 이야기","224173899350"]],
 strasbourg:[["프랑스 알자스 3박 4일 여행기 : Day1 스트라스부르","224163700460"]],
-winevillages:[["알자스 3일차 | 리보빌레 → 리퀘위르, 눈 덮인 와인가도","224170095099"]],
+riquewihr:[["알자스 3일차 | 리보빌레 → 리퀘위르, 눈 덮인 와인가도","224170095099"]],ribeauville:[["알자스 3일차 | 리보빌레 → 리퀘위르, 눈 덮인 와인가도","224170095099"]],
 montreux:[["라보 지역 2박, 포도밭 트레킹으로 시작하는 스위스","224314130537"],["레만호 일주 여행","223642701782"]],
 zurich:[["숙박비가 비싸 경유지가 되기 쉽지만 하루쯤 걸어볼 가치가 있는 도시","224306623897"]],
 bern:[["샤모니에서 돌아오는 길에 들른 구시가지","224314130537"]],
@@ -195,6 +199,7 @@ function place(key){if(!key)return null;if(typeof key==="object")return key;
  if(key.startsWith("d:")){const x=D.find(x=>x.id===key.slice(2));return{key,id:x.id,name:x.n,c:x.c,lat:x.lat,lng:x.lng,ap:false}}
  if(key.startsWith("c:"))return CUSTOM[key];return null}
 const byId=Object.fromEntries(D.map(x=>[x.id,x]));
+byId.winevillages=byId.riquewihr;// 예전 id 호환 (와인가도 마을 → 마을별로 나눔)
 const POP={interlaken:3,chamonix:3,ortisei:3,cortina:2.5,lucerne:2.5,salzburg:2.5,zermatt:3,como:2,innsbruck:1.5,annecy:2,hallstatt:3,stmoritz:1.5,montreux:1};
 const COST={CH:4,lindau:3,stgallen:4,appenzell:4,ingolstadt:3,badgoisern:2,dachstein:2,canazei:2,sanvito:2,wengen:4,thunlake:4,lotschental:3,zermatt:4,stmoritz:4,interlaken:4,lugano:4,chamonix:3,annecy:3,courmayeur:3,ortisei:3,cortina:3,braies:3,como:3,venice:3,milan:3,aosta:2,bolzano:2,trento:2,verona:2,bologna:2,bergamo:2,sirmione:2,bassano:2,asolo:2,florence:2,innsbruck:2,zillertal:2,hallstatt:3,salzburg:3,stgilgen:2,zellamsee:3,grossglockner:2,vienna:3,garmisch:3,fussen:2,berchtesgaden:2,munich:3};
 const cost=x=>COST[x.id]||COST[x.c]||3;const won=x=>"₩".repeat(cost(x))+"<span class=dim>"+"₩".repeat(4-cost(x))+"</span>";
@@ -219,7 +224,7 @@ function orderRoute(nodes,start,end){
  let improved=true;while(improved){improved=false;for(let i=0;i<out.length-1;i++)for(let j=i+1;j<out.length;j++){const c=[...out.slice(0,i),...out.slice(i,j+1).reverse(),...out.slice(j+1)];if(pathLen(c,start,end)<pathLen(out,start,end)-.1){out=c;improved=true}}}
  return out;}
 function insertCost(path,x,start,end){let bc=Infinity;for(let k=0;k<=path.length;k++){const a=k?path[k-1]:start,b=k<path.length?path[k]:end;bc=Math.min(bc,km(a,x)+km(x,b)-km(a,b))}return bc}
-function score(x,o){let s=(POP[x.id]||0)+(typeof FAV!=="undefined"&&FAV.has(x.id)?1.5:0)+((o.style==="hike"||o.style==="trek")&&(x.id==="zermatt"||x.id==="chamonix")?3:0);const isCity=x.st.includes("city"),isNat=x.st.some(t=>t==="hike"||t==="scenic");if(o.mix==="city")s+=isCity?2.5:0;if(o.mix==="nature")s+=isNat?1.5:(isCity?-2:0);if(o.style==="comfort"){s+=(x.st.includes("relax")?3:0)+(ACC[x.id]&&/평지/.test(ACC[x.id])?2:0)-(x.st.length===1&&x.st[0]==="hike"?4:0)-(/계단 많/.test(ACC[x.id]||"")?3:0);}if(o.style==="trek")s+=x.st.includes("hike")?3:-1;s+=x.st.includes(o.style)?3:0;s+=x.s.includes(o.season)?2:-4;if(o.style!=="city"&&x.st.length===1&&x.st[0]==="city")s-=2;if(o.mode==="train"&&x.id==="grossglockner")s-=10;const mo=o.month||0;if(x.r==="알자스"){if(mo>=9)s+=x.t==="hub"?9:3;else if(mo)s-=4;}if(mo&&(mo===12||mo<=3)){if(x.id==="interlaken")s+=5;if(["ortisei","cortina"].includes(x.id))s+=2;if(x.st.includes("city"))s+=2;if(x.st.length===1&&x.st[0]==="hike")s-=4;}if(o.budget==="save")s-=(cost(x)-2)*1.5;return s;}
+function score(x,o){let s=(POP[x.id]||0)+(typeof FAV!=="undefined"&&FAV.has(x.id)?1.5:0)+((o.style==="hike"||o.style==="trek")&&(x.id==="zermatt"||x.id==="chamonix")?3:0);const isCity=x.st.includes("city"),isNat=x.st.some(t=>t==="hike"||t==="scenic");if(o.mix==="city")s+=isCity?2.5:0;if(o.mix==="nature")s+=isNat?1.5:(isCity?-2:0);if(o.style==="comfort"){s+=(x.st.includes("relax")?3:0)+(ACC[x.id]&&/평지/.test(ACC[x.id])?2:0)-(x.st.length===1&&x.st[0]==="hike"?4:0)-(/계단 많/.test(ACC[x.id]||"")?3:0);}if(o.style==="trek")s+=x.st.includes("hike")?3:-1;s+=x.st.includes(o.style)?3:0;s+=x.s.includes(o.season)?2:-4;if(o.style!=="city"&&x.st.length===1&&x.st[0]==="city")s-=2;if(o.mode==="train"&&x.id==="grossglockner")s-=10;const mo=o.month||0;if(x.r==="알자스"){if(mo>=9)s+=x.t==="hub"&&!x.dayFrom?9:3;else if(mo)s-=4;}if(mo&&(mo===12||mo<=3)){if(x.id==="interlaken")s+=5;if(["ortisei","cortina"].includes(x.id))s+=2;if(x.st.includes("city"))s+=2;if(x.st.length===1&&x.st[0]==="hike")s-=4;}if(o.budget==="save")s-=(cost(x)-2)*1.5;return s;}
 // ---------- core planner: hubs [{x,n}] + satellites -> days ----------
 function plan(o,hubs,sats){
  const A=place(o.entry),B=place(o.exit);const far=(p)=>Math.min(...hubs.map(h=>km(p,h.x)))>250;
@@ -239,7 +244,7 @@ function plan(o,hubs,sats){
   const enr=sats.filter(s=>(s.x.parent===x.id||s.host===x.id)&&(s.x.mode==="enroute"||s.mode==="enroute"));if(enr.length)days[days.length-1].body+=" 🚗 가는 길에 들르기: "+enr.map(s=>s.x.n+" ("+s.x.h[0]+")").join(", ")+".";
   if(o.style==="comfort"&&CARDS[x.id])days[days.length-1].body+=" 🎫 "+CARDS[x.id]+".";
   let free=h.n-1;
-  const mySats=sats.filter(s=>s.x.mode!=="enroute"&&s.mode!=="enroute").filter(s=>s.x.parent===x.id||s.host===x.id).sort((a,b)=>b.sc-a.sc);
+  const mySats=sats.filter(s=>s.x.mode!=="enroute"&&s.mode!=="enroute").filter(s=>(s.host||s.x.parent)===x.id).sort((a,b)=>b.sc-a.sc);
   const acts=[...x.hk.filter(k=>!((o.style==="hike"||o.style==="trek")&&favHike(k[0]))).map(k=>({t:`🥾 ${k[0]}${hikeBadge(k[0])}`,b:`난이도 ${k[1]}${k[2]?" · "+k[2]:""}`})),...x.h.map(k=>({t:`📍 ${k}`,b:""}))];
   let ai=0;
   if(o.style==="hike"||o.style==="trek"){for(const k of x.hk.filter(k=>favHike(k[0]))){if(free<=0)break;days.push({hub:x,title:`🥾 ${k[0].replace(/^⭐ /,"")} 트레킹 데이`,body:`${k[0]}${hikeBadge(k[0])} · 난이도 ${k[1]} — ${k[2]}. 날씨 좋은 날로 배치하고 아침 일찍 출발 추천.`,tag:"트레킹"});free--;}}
@@ -300,8 +305,11 @@ function recommend(o){
  let i=0;while(used<N&&hubs.length){hubs.sort((a,b)=>score(b.x,o)-score(a.x,o));hubs[i%hubs.length].n++;used++;i++;}
  const ap=applyApproach(o,hubs);
  const hubIds=hubs.map(h=>h.x.id);
- const sats=D.filter(x=>x.t==="sat"&&ok(x)&&hubIds.includes(x.parent)&&!hubIds.includes(x.id)&&x.s.includes(o.season)&&!(o.mode==="train"&&x.id==="grossglockner"))
+ let sats=D.filter(x=>x.t==="sat"&&ok(x)&&hubIds.includes(x.parent)&&!hubIds.includes(x.id)&&x.s.includes(o.season)&&!(o.mode==="train"&&x.id==="grossglockner"))
   .map(x=>{const h=hubs.find(h=>h.x.id===x.parent);return{x,sc:score(x,o),mode:(x.mode==="both"&&h.n>=4&&o.style!=="comfort")?"1n2d":"day"}}).filter(s=>!(o.style==="comfort"&&(s.x.st.length===1&&s.x.st[0]==="hike"||oneWay(byId[s.x.parent],s.x)>1.5)));
+ for(const x of D){if(!ok(x)||!x.s.includes(o.season)||hubIds.includes(x.id)||sats.some(s=>s.x===x))continue;
+  if(x.dayFrom&&hubIds.includes(x.dayFrom))sats.push({x,sc:score(x,o),mode:"day",host:x.dayFrom});
+  else if(x.t==="sat"&&x.alt&&hubIds.includes(x.alt)&&!hubIds.includes(x.parent))sats.push({x,sc:score(x,o),mode:"day",host:x.alt});}
  const r=plan(o,hubs,sats);r.approach=ap;return r;
 }
 // ---------- preset: 취리히 왕복 오스트리아·독일 루프  ----------
@@ -323,8 +331,10 @@ function presetLoop(o){
 function manual(o,sel){
  const N=o.days-1;let hubs=[],sats=[];
  for(const [id,m] of Object.entries(sel)){const x=byId[id];
-  if(x.t==="hub"||m==="hub"||!sel[x.parent])hubs.push({x,n:x.nt||1});
-  else sats.push({x,sc:score(x,o),mode:m==="1n2d"?"1n2d":"day"});}
+  if(x.t==="hub"||m==="hub")hubs.push({x,n:x.nt||1});
+  else if(sel[x.parent])sats.push({x,sc:score(x,o),mode:m==="1n2d"?"1n2d":"day"});
+  else if(x.alt&&sel[x.alt])sats.push({x,sc:score(x,o),mode:"day",host:x.alt});
+  else hubs.push({x,n:x.nt||1});}
  let warn="";
  const satDays=sats.reduce((s,a)=>s+(a.mode==="1n2d"?2:1),0);
  let want=hubs.reduce((s,h)=>s+h.n,0);
@@ -335,7 +345,7 @@ function manual(o,sel){
  }
  let used=hubs.reduce((s,h)=>s+h.n,0),i=0;
  // ensure host hubs have room for satellites
- for(const s of sats){const h=hubs.find(h=>h.x.id===s.x.parent);const need=(s.mode==="1n2d"?2:1);if(h&&used<N){const add=Math.min(need,N-used);h.n+=add;used+=add;}}
+ for(const s of sats){const h=hubs.find(h=>h.x.id===(s.host||s.x.parent));const need=(s.mode==="1n2d"?2:1);if(h&&used<N){const add=Math.min(need,N-used);h.n+=add;used+=add;}}
  while(used<N&&hubs.length){hubs[i%hubs.length].n++;used++;i++;}
  if(hubs.length>N)hubs=hubs.slice(0,N);
  const r=plan(o,hubs,sats);r.warn=warn;return r;
@@ -487,7 +497,7 @@ function nearOK(p,ot){if(km(p,ot)<=SHOP_MAXKM)return true;return (ot.near||[]).s
 function applyAlsace(r,o){const d=r.days.find(d=>d.hub&&d.hub.r==="알자스");if(!d)return;const mo=o.month||0;if(mo===9||mo===10)d.body+=`<div class=hi>🍇 가을 알자스 추천: 와인가도(Route des Vins d'Alsace) 단풍 포도밭 + 수확 축제. 2026년 예: 에기스하임 햇와인 축제 9/26~27·10/3~4, 바르 수확 축제 10/2~4 (매년 10월 첫 일요일 무렵, 꽃수레 퍼레이드), 몰스하임 포도 축제 10/9~11. 날짜는 해마다 바뀌니 출발 전 확인.</div>`;if(mo===11||mo===12)d.body+=`<div class=hi>🎄 크리스마스 마켓 시즌 강력 추천: 콜마르 2026.11.23~12.29 (미식 마켓·관람차·라프 광장은 2027.1.3까지), 스트라스부르 2026.11.27~12.24. 12/24 이후엔 콜마르만 열려요. 마켓 기간 콜마르 구시가는 차량 통제 → 외곽 주차.</div>`;}
 const SHOP_TIPS=["평일 오전에 가면 덜 붐벼요","택스프리(부가세 환급) 서류는 매장에서 받고 출국 시 절차 확인","중간에 카페에서 쉬엄쉬엄 — 걷는 양을 줄이기","차가 있으면 아울렛 두 곳도 하루에 가능"];
 function applyShopping(r,o){
- if(!o.shop)return;const B=r.B||place(o.exit);
+ if(!o.shop||r.days.some(d=>d.shop))return;const B=r.B||place(o.exit);
  const loc=d=>d.hub&&d.hub.lat!=null?d.hub:(d.kind==="C"?B:null);
  const cands=r.days.map((d,i)=>({d,i,p:loc(d)})).filter(c=>c.p&&(c.d.kind==="R"||c.d.kind==="C"||c.d.tag==="관광"||/휴식/.test(c.d.tag||"")));
  let best=null,bv=Infinity,bo=null;
@@ -506,6 +516,24 @@ function applyShopping(r,o){
  else L.body+=`<div class=mut>🛍️ 이번 루트 1시간 이내엔 확인된 아울렛이 없어요. 끝 도시 시내 쇼핑을 추천해요.</div>`;
 }
 
+
+// ---------- 프랑크푸르트 왕복: 취리히 → 슈투트가르트 → 메칭엔 → 프랑크푸르트 귀환 옵션 ----------
+const METZ_TIPS=["메칭엔은 일요일·공휴일 휴무 — 토요일은 붐비니 평일이 좋아요","매장이 마을 곳곳에 흩어져 있어 아울렛 지도를 먼저 받기","택스프리(부가세 환급) 서류는 매장에서 받고 출국 공항에서 절차 확인","큰 짐은 슈투트가르트역 코인로커나 차에 두고 가볍게","돌아가는 날이라 쇼핑은 오후 일찍 마무리하고 프랑크푸르트로"];
+function applyFraReturn(r,o){
+ if(!o._fraRet)return;r.B=place("g:frankfurt");o.exit="g:frankfurt";
+ const Z={n:"취리히",lat:GATES.zurich[2],lng:GATES.zurich[3]},STU={id:"stuttgart",n:"슈투트가르트",c:"DE",r:"귀국길",lat:GATES.stuttgart[2],lng:GATES.stuttgart[3],d:"메칭엔 쇼핑을 위한 귀국길 1박. 쾨니히 거리·슐로스 광장 산책.",s:[],hk:[],h:["쾨니히 거리·슐로스 광장"]};
+ const MZ=OUTLETS.find(x=>x.id==="metzingen"),F=r.B;
+ // 가장 오래 머무는 거점에서 하루를 빼서 슈투트가르트 1박
+ const cnt=it=>r.days.filter(d=>d.hub&&it.x&&d.hub.id===it.x.id).length;
+ const donors=r.ord.filter(it=>it.n>=2&&it.x.id!=="stuttgart").sort((a,b)=>b.n-a.n);
+ let dd=null,donor=null;for(const it of donors){for(let i=r.days.length-1;i>=0;i--){const d=r.days[i];if(d.hub&&d.hub.id===it.x.id&&d.kind!=="M"&&d.tag!=="이동"&&d.tag!=="시작"&&d.tag!=="1박2일"&&!d.shop){dd=i;break}}if(dd!=null){donor=it;break}}
+ if(dd==null){r.days[r.days.length-1].body+=`<div class=mut>🚆 일정이 짧아 '취리히 → 슈투트가르트 → 메칭엔' 귀국길은 넣지 못했어요. 하루 늘리면 들어가요.</div>`;return;}
+ r.days.splice(dd,1);donor.n--;
+ const last=r.days.pop();const lh=[...r.days].reverse().find(d=>d.hub&&d.hub.lat!=null);const P=lh?lh.hub:r.A;
+ const viaZ=km(P,Z)+km(Z,STU)<km(P,STU)*1.6||km(P,Z)<120;
+ r.days.push({hub:STU,title:`${P.n||P.name} → ${viaZ?"취리히 → ":""}슈투트가르트`,body:`귀국길 시작. ${viaZ?`이동 ${travel(P,Z)||"근거리"} 취리히, 취리히 → 슈투트가르트 ${travel(Z,STU)}`:`이동 ${travel(P,STU)}`}. 저녁엔 쾨니히 거리·슐로스 광장 가볍게 산책. 슈투트가르트 1박.`,tag:"이동",kind:"M"});
+ r.days.push({hub:null,title:`🛍️ 메칭엔 아울렛 쇼핑 → ${F.name} (여행 마무리)`,body:`<div class=hi>🛍️ ${MZ.n} — ${MZ.area}. ${MZ.acc}.</div><div class=tipsbox>💡 쇼핑 팁: ${METZ_TIPS.map(t=>"· "+t).join(" ")}</div>쇼핑 후 ${F.name}로: 차로 약 2.5시간, 기차는 메칭엔 → 슈투트가르트 → ICE로 약 2시간 남짓 (추정). 비행 시간에 맞춰 여유 있게.`,tag:"🛍️ 쇼핑 데이",kind:"M",shop:true});
+ r.ord.push({x:STU,n:1,region:"귀국길"});r.fraRet=true;}
 // ---------- 월별 시즌 규칙 ----------
 const MONTHS={1:"1월 · 겨울(스키)",2:"2월 · 겨울(스키)",3:"3월 · 늦겨울(스키)",4:"4월 · 봄(산 위는 아직 눈)",5:"5월 · 봄(고지대 눈 남음)",6:"6월 · 초여름(중순부터 트레킹)",7:"7월 · 여름",8:"8월 · 여름",9:"9월 · 가을(트레킹·와인 축제)",10:"10월 · 가을(초·중순까지 트레킹)",11:"11월 · 늦가을(리프트 정비기)",12:"12월 · 겨울(크리스마스 마켓·스키)"};
 function seasonOf(m){return m>=6&&m<=9?"su":(m===4||m===5||m===10||m===11)?"sh":"wi";}
@@ -539,8 +567,8 @@ function novPlan(o){const A=place(o.entry),B=place(o.exit);const it=p=>p&&(p.c==
  while(base.reduce((s,b)=>s+b[1],0)>N){const big=base.filter(b=>b[1]>1).sort((a,b)=>b[1]-a[1])[0];if(big&&base.length*1.5<base.reduce((s,b)=>s+b[1],0))big[1]--;else{const d=drop.shift();if(!d){if(big)big[1]--;else break}else base=base.filter(b=>b[0]!==d)}}
  let i=0;const grow=t==="a"?["interlaken","colmar","montreux"]:["florence","venice","bolzano"];while(base.reduce((s,b)=>s+b[1],0)<N){const g=base.find(b=>b[0]===grow[i%3]);if(g)g[1]++;i++;if(i>50)break;}
  const hubs=base.map(([id,n])=>({x:byId[id],n}));const ids=hubs.map(h=>h.x.id);
- const satIds=t==="a"?["strasbourg","winevillages","bern","thunlake"]:["siena","sangimignano","lucca"];
- const sats=satIds.filter(id=>byId[id]&&ids.includes(byId[id].parent)).map(id=>({x:byId[id],sc:5,mode:"day"}));
+ const satIds=t==="a"?["strasbourg","riquewihr","kaysersberg","eguisheim","ribeauville","bern","thunlake"]:["siena","sangimignano","lucca"];
+ const sats=satIds.filter(id=>byId[id]&&!ids.includes(id)&&(ids.includes(byId[id].parent)||ids.includes(byId[id].dayFrom))).map((id,k)=>({x:byId[id],sc:5-k*.1,mode:"day",host:byId[id].dayFrom}));
  const r=plan({...o,approach:""},hubs,sats);r.novAlt=alt;r.novT=t;return r;}
 
 let M="rec";const S={month:new Date().getMonth()+1,novT:"",shop:false,mix:"balance",style:"scenic",season:"su",countries:["CH","FR","IT","AT"],pace:"normal",budget:"any",mode:"train"};const SEL={};
@@ -566,7 +594,7 @@ function init(){["entry","exit"].forEach(w=>{cityOptions($("#"+w));$("#q_"+w).on
  document.querySelectorAll(".custom button").forEach(b=>b.onclick=()=>geocode(b.dataset.for));
  for(let d=5;d<=16;d++)$("#days").add(new Option(d+"일 ("+(d-1)+"박)",d));$("#days").value=9;
  for(const[k,v]of Object.entries(APPROACH))$("#approach").add(new Option(v.name,k));
- chips("mix",{city:"🏛️ 도시 많이",balance:"⚖️ 반반",nature:"🏔️ 자연 위주"},"mix");styleChips();$("#month").innerHTML=Object.entries(MONTHS).map(([k,v])=>`<option value=${k}${+k===S.month?" selected":""}>${v}</option>`).join("");$("#month").onchange=e=>{S.month=+e.target.value;S.season=seasonOf(S.month);S.novT="";styleChips();};$("#shop").onchange=e=>S.shop=e.target.checked;
+ chips("mix",{city:"🏛️ 도시 많이",balance:"⚖️ 반반",nature:"🏔️ 자연 위주"},"mix");styleChips();$("#month").innerHTML=Object.entries(MONTHS).map(([k,v])=>`<option value=${k}${+k===S.month?" selected":""}>${v}</option>`).join("");$("#month").onchange=e=>{S.month=+e.target.value;S.season=seasonOf(S.month);S.novT="";styleChips();};$("#shop").onchange=e=>S.shop=e.target.checked;$("#fraRet").onchange=e=>S.fraRet=e.target.checked;
  chips("countries",COUNTRIES,"countries",1);chips("pace",{normal:"보통",slow:"느긋하게 (거점 적게)"},"pace");chips("budget",{any:"상관없음",save:"💰 절약 (저렴한 거점 우선)"},"budget");chips("mode",MODE,"mode");
  document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{M=t.dataset.m;document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x===t));$("#recOnly").style.display=M==="rec"?"":"none";$("#manOnly").style.display=M==="man"?"":"none"});
  renderPicks();$("#go").onclick=run;$("#preset").onclick=()=>{const o={...S,days:+$("#days").value,style:"comfort"};o.shop=S.shop;const r=presetLoop(o);applyAlsace(r,o);applyShopping(r,o);render(r,o);drawMap(r);};initMap();}
@@ -585,21 +613,22 @@ function drawMap(r){if(!map)return;layer.clearLayers();const pts=[[r.A.lat,r.A.l
  L.polyline(pts,{color:"#1f6feb",weight:4}).addTo(layer);
  L.marker([r.A.lat,r.A.lng]).bindPopup("🚩 "+r.A.name).addTo(layer);L.marker([r.B.lat,r.B.lng]).bindPopup("🏁 "+r.B.name).addTo(layer);
  r.ord.forEach((h,i)=>L.marker([h.x.lat,h.x.lng],{icon:L.divIcon({className:"",html:`<div style="background:#0f1f33;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-weight:800;border:2px solid #fff">${i+1}</div>`})}).bindPopup(`<b>${h.x.n}</b> ${h.n}박`).addTo(layer));
- const sh=new Set(r.days.filter(d=>d.sat).map(d=>d.sat.id));
- for(const id of sh){const s=byId[id],p=byId[s.parent];L.polyline([[p.lat,p.lng],[s.lat,s.lng]],{color:"#0ea5a4",dashArray:"6 6"}).addTo(layer);L.circleMarker([s.lat,s.lng],{radius:7,color:"#0ea5a4",fillOpacity:.8}).bindPopup(s.n).addTo(layer)}
- map.fitBounds(L.latLngBounds(pts.concat([...sh].map(id=>[byId[id].lat,byId[id].lng]))),{padding:[30,30]})}
+ const sh=new Map(r.days.filter(d=>d.sat).map(d=>[d.sat.id,d.hub]));
+ for(const [id,hb] of sh){const s=byId[id],p=hb||byId[s.parent];L.polyline([[p.lat,p.lng],[s.lat,s.lng]],{color:"#0ea5a4",dashArray:"6 6"}).addTo(layer);L.circleMarker([s.lat,s.lng],{radius:7,color:"#0ea5a4",fillOpacity:.8}).bindPopup(s.n).addTo(layer)}
+ map.fitBounds(L.latLngBounds(pts.concat([...sh.keys()].map(id=>[byId[id].lat,byId[id].lng]))),{padding:[30,30]})}
 function styleChips(){chips("style",STYLE,"style");if(!trekOK(S.month))document.querySelectorAll("#style .chip").forEach(c=>{if(/하이킹|트레킹/.test(c.textContent)){c.classList.add("dis");c.title="이 시기엔 눈 때문에 트레킹이 어려워요";}});const n=$("#trekNote");if(n)n.style.display=!trekOK(S.month)?"":"none";}
 function run(){const o={...S,entry:$("#entry").value,exit:$("#same").checked?$("#entry").value:$("#exit").value,days:+$("#days").value,approach:M==="rec"?$("#approach").value:""};
  if(M==="man"){if(!Object.keys(SEL).length){$("#out").innerHTML='<div class=warn>가고 싶은 곳을 하나 이상 선택해주세요.</div>';return}o.countries=Object.keys(COUNTRIES)}
+ if(o.fraRet&&o.entry==="g:frankfurt"&&o.exit==="g:frankfurt"){o.exit="g:zurich";o._fraRet=true;}// 귀국길 옵션: 일정은 취리히에서 끝나게 짠 뒤 슈투트가르트·메칭엔을 붙임
  o.season=seasonOf(o.month);if(!trekOK(o.month)&&(o.style==="hike"||o.style==="trek")){o.style="scenic";o.trekBlocked=true;}
- const r=M==="rec"?recommend(o):manual(o,SEL);applySeason(r,o);applyAlsace(r,o);applyShopping(r,o);render(r,o);if(r.notes&&r.notes.length)$("#out").insertAdjacentHTML("afterbegin",r.notes.join(""));document.querySelectorAll("[data-nov]").forEach(b=>b.onclick=()=>{S.novT=b.dataset.nov;run();});drawMap(r)}
+ const r=M==="rec"?recommend(o):manual(o,SEL);applySeason(r,o);applyAlsace(r,o);applyFraReturn(r,o);applyShopping(r,o);render(r,o);if(r.notes&&r.notes.length)$("#out").insertAdjacentHTML("afterbegin",r.notes.join(""));document.querySelectorAll("[data-nov]").forEach(b=>b.onclick=()=>{S.novT=b.dataset.nov;run();});drawMap(r)}
 function render(r,o){const cs=[...new Set(r.ord.map(h=>h.x.c))].map(c=>COUNTRIES[c]).join(" ");
  let h=(r.zNote?`<p class=mut>ℹ️ ${r.zNote}</p>`:"")+(r.endWarn?`<div class=warn>⚠️ 마지막 거점 ${r.endWarn.from} → ${r.endWarn.to}까지 약 ${r.endWarn.h}시간 (추정)으로 마지막 날 이동이 길어요. 끝 도시를 바꿔보세요: ${r.endWarn.sug.map(s=>`<button class=sugbtn data-k="${s.key}">${s.name}로 끝 도시 바꾸기</button>`).join(" ")}</div>`:"")+(r.preset?`<div class=warn style="background:#ecfeff;border-color:#0ea5a4">🚗 취리히 왕복 오스트리아·독일 편안한 루프: 렌터카로 보덴호 → 뮌헨 → 잘츠부르크 → 잘츠카머구트 → 인스브루크를 도는 평지 위주 편안한 루프. 기간에 맞춰 자동으로 늘이고 줄여요.</div>`:"")+(r.warn?`<div class=warn>${r.warn}</div>`:"");
  h+=`<h3 style="margin:0">${o.days}일 알프스 루트 <span class=mut>${cs}</span></h3>`;
  h+=`<div class=route><span class=pill>🚩 ${r.A.name}</span>`+r.ord.map(x=>`→ <span class=pill>${x.x.n} ${x.n}박</span>`).join("")+` → <span class=pill>🏁 ${r.B.name}</span></div>`;
  if(r.approach)h+=`<p class=mut>🇮🇹 ${r.approach.name}: ${r.approach.note}</p>`;
  h+=r.days.map((d,i)=>`<details class=dd><summary><div class=dn>DAY<br>${i+1}</div><div><b>${d.title}</b><span class=tag>${d.tag}</span></div></summary><div class=body>${d.body}${d.sat?tips(d.sat):""}</div></details>`).join("");
- h+=`<h3 style="margin-top:20px">거점 자세히 보기</h3>`+r.ord.map(({x})=>`<details class=dd><summary><div><b>${x.n}</b>${badge(x)} <span class=mut>${x.r} · 물가 ${won(x)}</span></div></summary><div class=body>${x.d}<div class=mut>추천 시기: ${x.s.map(s=>SE[s]).join(", ")}</div>${x.hk.length?`<ul class=hk>${x.hk.map(k=>`<li><b>${k[0]}</b>${hikeBadge(k[0])} · ${k[1]}${k[2]?" — "+k[2]:""}</li>`).join("")}</ul>`:""}${(()=>{const subs=D.filter(s=>s.parent===x.id);return subs.length?`<div class=mut>근교: ${subs.map(s=>s.n+(s.mode==="both"?" (당일/1박2일)":" (당일)")).join(", ")}</div>`:""})()}${ACC[x.id]?`<div class=mut>♿ 이동 편의: ${ACC[x.id]}</div>`:""}${CARDS[x.id]?`<div class=mut>🎫 ${CARDS[x.id]}</div>`:""}${tips(x)}</div></details>`).join("");
+ h+=`<h3 style="margin-top:20px">거점 자세히 보기</h3>`+r.ord.map(({x})=>`<details class=dd><summary><div><b>${x.n}</b>${badge(x)} <span class=mut>${x.r} · 물가 ${won(x)}</span></div></summary><div class=body>${x.d}<div class=mut>추천 시기: ${x.s.map(s=>SE[s]).join(", ")}</div>${x.hk.length?`<ul class=hk>${x.hk.map(k=>`<li><b>${k[0]}</b>${hikeBadge(k[0])} · ${k[1]}${k[2]?" — "+k[2]:""}</li>`).join("")}</ul>`:""}${(()=>{const subs=D.filter(s=>s.parent===x.id||s.alt===x.id||s.dayFrom===x.id);return subs.length?`<div class=mut>근교: ${subs.map(s=>s.n+(s.mode==="both"?" (당일/1박2일)":" (당일)")).join(", ")}</div>`:""})()}${ACC[x.id]?`<div class=mut>♿ 이동 편의: ${ACC[x.id]}</div>`:""}${CARDS[x.id]?`<div class=mut>🎫 ${CARDS[x.id]}</div>`:""}${tips(x)}</div></details>`).join("");
  h+=`<p class=mut style="margin-top:14px">📒 더 읽을거리: ${BLOG_GENERAL.map(([t,id])=>`<a href="${BLOG_BASE+id}" target=_blank rel=noopener>${t}</a>`).join(" · ")}</p>`;
  $("#out").innerHTML=h;document.querySelectorAll(".sugbtn").forEach(b=>b.onclick=()=>{$("#same").checked=false;$("#endBox").style.display="";$("#exit").value=b.dataset.k;run();});}
 S.season=seasonOf(S.month);init();
